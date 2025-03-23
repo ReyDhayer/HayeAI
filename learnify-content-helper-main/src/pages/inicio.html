@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HayeAI</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #7209b7;
+      --accent: #f72585;
+      --dark: #111827;
+      --gray-dark: #374151;
+      --gray: #6b7280;
+      --gray-light: #f3f4f6;
+      --success: #10b981;
+      --white: #ffffff;
+      --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      background-color: var(--white);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--gray-light);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 5px;
+    }
+    
+    /* Landing Hero Section */
+    .landing-hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+    }
+    
+    .landing-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('/api/placeholder/1920/1080') no-repeat center center;
+      background-size: cover;
+      opacity: 0.2;
+      z-index: 1;
+    }
+    
+    .landing-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(67,97,238,0.3) 0%, rgba(114,9,183,0.3) 100%);
+      z-index: 2;
+    }
+    
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+    }
+    
+    .particle {
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      25% {
+        opacity: 1;
+      }
+      75% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+      }
+    }
+    
+    .landing-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      color: var(--white);
+    }
+    
+    .landing-logo {
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .landing-logo img {
+      height: 50px;
+    }
+    
+    .landing-logo-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-left: 1rem;
+      background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .landing-header {
+      max-width: 800px;
+    }
+    
+    .landing-title {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      animation: fadeInUp 1s ease;
+      color: var(--white);
+    }
+    
+    .landing-title span {
+      background: linear-gradient(135deg, #f72585 0%, #4361ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .landing-subtitle {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+      animation: fadeInUp 1s ease 0.2s both;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .landing-cta {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      animation: fadeInUp 1s ease 0.4s both;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      background-color: var(--primary);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      z-index: -1;
+    }
+    
+    .btn:hover:before {
+      width: 100%;
+    }
+    
+    .btn-primary {
+      background: var(--gradient);
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--white);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-lg {
+      padding: 1.2rem 3rem;
+      font-size: 1.1rem;
+    }
+    
+    .landing-features {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      animation: fadeInUp 1s ease 0.6s both;
+    }
+    
+    .landing-feature {
+      display: flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .landing-feature i {
+      margin-right: 0.75rem;
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+    
+    .landing-badges {
+      display: flex;
+      gap: 2rem;
+      margin-top: 4rem;
+      animation: fadeInUp 1s ease 0.8s both;
+    }
+    
+    .landing-badge {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .landing-badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 1.2rem;
+    }
+    
+    .landing-badge-text h4 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .landing-badge-text p {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .scroll-down {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--white);
+      animation: bounce 2s infinite;
+    }
+    
+    .scroll-down span {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .scroll-down i {
+      font-size: 1.5rem;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0) translateX(-50%);
+      }
+      40% {
+        transform: translateY(-20px) translateX(-50%);
+      }
+      60% {
+        transform: translateY(-10px) translateX(-50%);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Features Section */
+    .features-section {
+      padding: 7rem 0;
+      background-color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .features-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('/api/placeholder/1920/1080') center/cover no-repeat;
+      opacity: 0.03;
+      z-index: 0;
+    }
+    
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 5rem;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .section-subtitle {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+      color: var(--primary);
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      color: var(--dark);
+    }
+    
+    .section-title span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-description {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--gray);
+    }
+    
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+    }
+    
+    .feature-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-card:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--gradient);
+      z-index: 1;
+    }
+    
+    .feature-card-content {
+      padding: 2rem;
+    }
+    
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+
+    .feature-icon img {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .feature-description {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .feature-link i {
+      margin-left: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .feature-link:hover {
+      color: var(--primary-dark);
+    }
+    
+    .feature-link:hover i {
+      transform: translateX(5px);
+    }
+    
+    /* How It Works Section */
+    .how-it-works {
+      padding: 7rem 0;
+      background-color: var(--gray-light);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+    }
+    
+    .step-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .step-number {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    
+    .step-image {
+      width: 100%;
+      height: 200px;
+      background-color: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--primary);
+    }
+    
+    .step-content {
+      padding: 2rem;
+      flex-grow: 1;
+    }
+    
+    .step-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .step-description {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--gray);
+    }
+    
+    /* Pricing Section */
+    .pricing-section {
+      padding: 7rem 0;
+      background-color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .pricing-toggle {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 4rem;
+      cursor: pointer;
+    }
+    
+    .toggle-option {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-option.active {
+      color: var(--dark);
+    }
+    
+    .toggle-switch {
+      width: 60px;
+      height: 30px;
+      background: var(--gradient);
+      border-radius: 30px;
+      margin: 0 1.5rem;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .toggle-switch:before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: var(--white);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-switch.yearly:before {
+      left: calc(100% - 27px);
+    }
+    
+    .pricing-plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+    }
+    
+    .pricing-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+    }
+    
+    .pricing-card.popular {
+      transform: scale(1.05);
+      z-index: 2;
+    }
+    
+    .pricing-card.popular:before {
+      content: "Mais Popular";
+      position: absolute;
+      top: 0;
+      right: 2rem;
+      background: var(--accent);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 0 0 10px 10px;
+      z-index: 3;
+    }
+
+    .auth-buttons {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .auth-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .login-btn {
+      background: transparent;
+      border: 2px solid var(--white);
+      color: var(--white);
+    }
+
+    .signup-btn {
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    .login-btn:hover,
+    .signup-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pricing-header {
+      padding: 2.5rem 2rem;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(114, 9, 183, 0.05) 100%);
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .pricing-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .pricing-amount {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+    
+    .pricing-amount small {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray);
+    }
+    
+    .pricing-period {
+      font-size: 0.9rem;
+      color: var(--gray);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .pricing-amount {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .pricing-amount.fade-out,
+    .pricing-period.fade-out {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    .pricing-amount.fade-in,
+    .pricing-period.fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .pricing-content {
+      padding: 2rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .pricing-description {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--gray);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .pricing-features {
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+    
+    .pricing-feature {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: var(--gray-dark);
+    }
+    
+    .pricing-feature i {
+      margin-right: 1rem;
+      color: var(--success);
+      font-size: 1.1rem;
+      margin-top: 0.2rem;
+    }
+    
+    .pricing-feature.unavailable {
+      color: var(--gray);
+    }
+    
+    .pricing-feature.unavailable i {
+      color: var(--gray);
+    }
+    
+    .pricing-action {
+      text-align: center;
+    }
+    
+    /* Testimonials Section */
+    .testimonials {
+      padding: 7rem 0;
+      background-color: var(--gray-light);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .testimonials-wrapper {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .testimonial-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      padding: 3rem;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .testimonial-rating {
+      display: flex;
+      margin-bottom: 1.5rem;
+      color: #FFD700;
+      font-size: 1.2rem;
+    }
+    
+    .testimonial-content {
+      font-size: 1.2rem;
+      line-height: 1.7;
+      color: var(--dark);
+      font-weight: 500;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+    
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+    }
+    
+    .testimonial-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      margin-right: 1.5rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .testimonial-info h4 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+    
+    .testimonial-info p {
+      font-size: 1rem;
+      color: var(--gray);
+    }
+    
+    .testimonials-wrapper {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .testimonial-slider {
+      display: flex;
+      gap: 2rem;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      padding: 1rem;
+      margin: -1rem;
+    }
+
+    .testimonial-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      min-width: calc(33.333% - 1.334rem);
+      transform: translateX(0);
+      transition: transform 0.5s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .testimonial-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+    }
+
+    .testimonial-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .testimonial-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: rgba(67, 97, 238, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .testimonial-dot.active {
+      background-color: var(--primary);
+      transform: scale(1.2);
+    }
+
+    .testimonial-prev,
+    .testimonial-next {
+      background: var(--white);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .testimonial-prev:hover,
+    .testimonial-next:hover {
+      background: var(--primary);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      padding: 7rem 0;
+      background: var(--gradient);
+      position: relative;
+      overflow: hidden;
+      color: var(--white);
+    }
+    
+    .cta-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('/api/placeholder/1920/1080') center/cover no-repeat;
+      opacity: 0.1;
+      z-index: 0;
+    }
+    
+    .cta-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .cta-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+    
+    .cta-description {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      margin-bottom: 3rem;
+      opacity: 0.9;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    /* Footer */
+    .footer {
+      background-color: var(--dark);
+      color: var(--white);
+      padding: 5rem 0 2rem;
+    }
+    
+    .footer-top {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+    
+    .footer-logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      background: linear-gradient(135deg, #f72585 0%, #7209b7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .footer-description {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 2rem;
+    }
+    
+    .footer-socials {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .social-link:hover {
+      background: var(--primary);
+      transform: translateY(-5px);
+    }
+    
+    .footer-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--white);
+      position: relative;
+      padding-bottom: 1rem;
+    }
+    
+    .footer-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: var(--primary);
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 1rem;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .footer-links a i {
+      margin-right: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+    
+    .footer-links a:hover {
+      color: var(--white);
+      transform: translateX(5px);
+    }
+    
+    .footer-newsletter p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 1.5rem;
+    }
+    
+    .newsletter-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background-color: var(--dark);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 15px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .newsletter-form:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-dark);
+    }
+
+    .newsletter-form .form-label {
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: labelFade 0.5s ease-in-out;
+    }
+
+    .newsletter-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      color: var(--white);
+      outline: none;
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes labelFade {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes inputFocus {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .newsletter-input:focus {
+      border-color: transparent;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 2px var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .newsletter-input:focus::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: var(--gradient);
+      z-index: -1;
+      animation: inputFocus 2s linear infinite;
+      background-size: 200% 200%;
+    }
+    
+    .newsletter-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.05rem;
+    }
+    
+    .newsletter-btn {
+      background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 8px;
+      color: var(--white);
+      padding: 0.8rem 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 1rem;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .newsletter-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .newsletter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    .newsletter-btn:active {
+      transform: translateY(1px);
+    }
+
+    .newsletter-btn::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: -100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .newsletter-btn:hover::after {
+      left: 100%;
+    }
+    
+    .footer-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Login Modal */
+    .modal-container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+    }
+    
+    .modal.active .modal-container {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      background: var(--gradient);
+      padding: 2rem;
+      color: var(--white);
+      text-align: center;
+    }
+    
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .modal-subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background: rgba(0, 0, 0, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    .modal-body {
+      padding: 2rem;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-dark);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      outline: none;
+    }
+    
+    .form-input::placeholder {
+      color: var(--gray);
+    }
+    
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--gray);
+    }
+    
+    .form-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+    
+    .forgot-password {
+      text-align: right;
+      margin-top: -0.5rem;
+    }
+    
+    .forgot-password a {
+      color: var(--primary);
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .forgot-password a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    .form-submit {
+      width: 100%;
+      padding: 1.2rem;
+      background: var(--gradient);
+      border: none;
+      border-radius: 10px;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .form-submit:hover {
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+    }
+    
+    .modal-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    .modal-divider:before,
+    .modal-divider:after {
+      content: '';
+      flex-grow: 1;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-divider span {
+      padding: 0 1rem;
+    }
+    
+    .social-logins {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .social-login {
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .social-login:hover {
+      background: rgba(0, 0, 0, 0.02);
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-footer {
+      background: var(--gray-light);
+      padding: 1.5rem;
+      text-align: center;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .modal-footer p {
+      font-size: 0.95rem;
+      color: var(--gray);
+    }
+    
+    .modal-footer a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .landing-title {
+        font-size: 3.5rem;
+      }
+      
+      .section-title {
+        font-size: 2.5rem;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .landing-title {
+        font-size: 3rem;
+      }
+      
+      .landing-badges {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .pricing-card.popular {
+        transform: scale(1);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .landing-title {
+        font-size: 2.5rem;
+      }
+      
+      .landing-cta {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .landing-features {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+      
+      .testimonial-card {
+        padding: 2rem;
+      }
+      
+      .testimonial-content {
+        font-size: 1.2rem;
+      }
+      
+      .cta-title {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .landing-title {
+        font-size: 2rem;
+      }
+      
+      .landing-subtitle {
+        font-size: 1rem;
+      }
+      
+      .section-subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .section-title {
+        font-size: 1.8rem;
+      }
+      
+      .cta-title {
+        font-size: 1.8rem;
+      }
+      
+      .cta-description {
+        font-size: 1rem;
+      }
+      
+      .modal-container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Landing Hero Section -->
+  <section class="landing-hero" id="home">
+    <div class="landing-bg"></div>
+    <div class="landing-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="auth-buttons">
+      <a href="#" class="auth-btn login-btn">Entrar</a>
+      <a href="#signup" class="auth-btn signup-btn">Cadastrar</a>
+    </div>
+    <div class="landing-content">
+      <div class="landing-logo">
+        <div class="landing-logo-text"> HayeAI</div>
+      </div>
+      
+      <div class="landing-header">
+        <h1 class="landing-title">Revolucione seus <span>Estudos</span> com Inteligência Artificial</h1>
+        <p class="landing-subtitle">Uma plataforma completa que combina IA avançada para transformar sua experiência de aprendizado, desde explicações detalhadas até resumos inteligentes.</p>
+      </div>
+      
+      <div class="landing-cta">
+        <a href="#pricing" class="btn btn-primary btn-lg">Comece Agora</a>
+        <a href="#how-it-works" class="btn btn-secondary btn-lg">Como Funciona</a>
+      </div>
+      
+      <div class="landing-features">
+        <div class="landing-feature">
+          <i class="fas fa-brain"></i>
+          <span>Aprendizado Personalizado</span>
+        </div>
+        <div class="landing-feature">
+          <i class="fas fa-rocket"></i>
+          <span>Resultados Rápidos</span>
+        </div>
+        <div class="landing-feature">
+          <i class="fas fa-clock"></i>
+          <span>Disponível 24/7</span>
+        </div>
+      </div>
+      
+      <div class="landing-badges">
+        <div class="landing-badge">
+          <div class="landing-badge-icon">98%</div>
+          <div class="landing-badge-text">
+            <h4>Aprovação</h4>
+            <p>Alunos satisfeitos</p>
+            <p>Entre nossos clientes</p>
+          </div>
+        </div>
+        <div class="landing-badge">
+          <div class="landing-badge-icon">1M+</div>
+          <div class="landing-badge-text">
+            <h4>Estudantes</h4>
+            <p>Usando nossa plataforma</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <a href="#features" class="scroll-down">
+      <span>Saiba mais</span>
+      <i class="fas fa-chevron-down"></i>
+    </a>
+  </section>
+  
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="features-bg"></div>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Recursos</div>
+        <h2 class="section-title">Ferramentas de <span>Aprendizado Inteligente</span></h2>
+        <p class="section-description">Nossa plataforma oferece recursos avançados para transformar sua experiência de aprendizado.</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+ <img src="\src\assets\pen.png" alt="Assistente de Aprendizagem">            </div>
+            <h3 class="feature-title">Assistente de Aprendizagem</h3>
+            <p class="feature-description">Obtenha explicações detalhadas sobre qualquer assunto, desde matemática até literatura, com nosso assistente inteligente personalizado.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+              <img src="\src\assets\reading-book.png" alt="Explicações Detalhadas">
+            </div>
+            <h3 class="feature-title">Gerador de Conteúdo</h3>
+            <p class="feature-description">Crie facilmente poemas, blogs, ensaios e outros textos acadêmicos com nossa ferramenta de geração de conteúdo inteligente.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+              <img src="\src\assets\white-board.png" alt="Material de Estudo">
+            </div>
+            <h3 class="feature-title">Idiomas e Gramática</h3>
+            <p class="feature-description">Traduza textos para diferentes idiomas e verifique a gramática dos seus trabalhos acadêmicos com precisão.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+              <img src="\src\assets\contract.png" alt="Ajudante de Ensaios">
+            </div>
+            <h3 class="feature-title">Ajudante de Ensaios</h3>
+            <p class="feature-description">Aprimore seus textos acadêmicos com sugestões inteligentes de paráfrase e estruturação de conteúdo.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+              <img src="\src\assets\research.png" alt="Resumidor Inteligente">
+            </div>
+            <h3 class="feature-title">Resumidor Inteligente</h3>
+            <p class="feature-description">Resuma textos, livros e extraia palavras-chave automaticamente, otimizando seu tempo de estudo e revisão.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-card-content">
+            <div class="feature-icon">
+              <img src="\src\assets\coding.png" alt="Aprimorador de Código">
+            </div>
+            <h3 class="feature-title">Aprimorador de Código</h3>
+            <p class="feature-description">Melhore, otimize e corrija seu código com sugestões inteligentes para projetos de programação.</p>
+            <a href="#" class="feature-link">Saiba mais <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- How It Works Section -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Como Começar</div>
+        <h2 class="section-title">Como o <span>HayeAI</span> Funciona</h2>
+        <p class="section-description">Nossa plataforma foi desenvolvida para tornar seu aprendizado mais eficiente e produtivo, com ferramentas inteligentes que se adaptam ao seu ritmo.</p>
+      </div>
+        HayeAI
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-image">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="step-content">
+            <h3 class="step-title">Crie Sua Conta</h3>
+            <p class="step-description">Comece criando sua conta gratuita e escolha as áreas de estudo que mais interessam você.</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-image">
+            <i class="fas fa-magic"></i>
+          </div>
+          <div class="step-content">
+            <h3 class="step-title">Escolha sua Ferramenta</h3>
+            <p class="step-description">Selecione entre nosso conjunto de ferramentas inteligentes: assistente de aprendizagem, gerador de conteúdo, tradutor, resumidor e muito mais.</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-image">
+            <i class="fas fa-magic"></i>
+          </div>
+          <div class="step-content">
+            <h3 class="step-title">Use a IA ao seu Favor</h3>
+            <p class="step-description">Deixe nossa IA ajudar você a estudar, criar conteúdo, melhorar textos e código, traduzir idiomas e resumir materiais complexos.</p>
+          </div>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-image">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="step-content">
+            <h3 class="step-title">Alcance Seus Objetivos</h3>
+            <p class="step-description">Melhore seu desempenho acadêmico com ferramentas inteligentes que tornam o aprendizado mais eficiente e produtivo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Planos Acessíveis</div>
+        <h2 class="section-title">Escolha o Plano <span>Ideal</span> para Você</h2>
+        <p class="section-description">Oferecemos planos personalizados para cada tipo de estudante, desde iniciantes até profissionais em busca de aperfeiçoamento.</p>
+      </div>
+      
+      <div class="pricing-toggle">
+        <div class="toggle-option active">Mensal</div>
+        <div class="toggle-switch"></div>
+        <div class="toggle-option">Anual</div>
+      </div>
+      
+      <div class="pricing-plans">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-title">Estudante</h3>
+            <div class="pricing-amount" id="student-price">R$29<small>/mês</small></div>
+            <div class="pricing-period" id="student-period">Cobrado mensalmente</div>
+          </div>
+          <div class="pricing-content">
+            <p class="pricing-description">Perfeito para estudantes do ensino médio que buscam apoio nos estudos.</p>
+            <div class="pricing-features">
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Assistente de Aprendizagem (5 matérias)</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Gerador de Redações (5/mês)</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Tradutor de Idiomas Básico</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Resumidor de Textos (2000 palavras)</span>
+              </div>
+              <div class="pricing-feature unavailable">
+                <i class="fas fa-times"></i>
+                <span>Aprimorador de Código</span>
+              </div>
+              <div class="pricing-feature unavailable">
+                <i class="fas fa-times"></i>
+                <span>Resumo do YouTube</span>
+              </div>
+            </div>
+            <div class="pricing-action">
+              <a href="#" class="btn btn-primary">Começar Agora</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pricing-card popular">
+          <div class="pricing-header">
+            <h3 class="pricing-title">Pro</h3>
+            <div class="pricing-amount" id="pro-price">R$99<small>/mês</small></div>
+            <div class="pricing-period" id="pro-period">Ideal para estudantes avançados</div>
+          </div>
+          <div class="pricing-content">
+            <p class="pricing-description">Recursos avançados para maximizar seu desempenho acadêmico</p>
+            <div class="pricing-features">
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Assistente de Escrita Acadêmica</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Corretor Avançado de Trabalhos</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Biblioteca de Conteúdo Ilimitada</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Gerador de Citações Avançado</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Análise de Plágio</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Suporte Premium 24/7</span></div>
+            </div>
+            <div class="pricing-action">
+              <a href="#" class="btn btn-primary">Começar Agora</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-title">Universitário</h3>
+            <div class="pricing-amount" id="university-price">R$129<small>/mês</small></div>
+            <div class="pricing-period" id="university-period">Ideal para Graduação e Pós</div>
+          </div>
+          <div class="pricing-content">
+            <p class="pricing-description">Solução completa para universitários com recursos avançados de pesquisa e produção acadêmica.</p>
+            <div class="pricing-features">
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Todas as funcionalidades do Plano Técnico</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Assistente de Pesquisa Acadêmica</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Gerador de Citações e Referências</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Análise de Artigos Científicos</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>IA avançada personalizada</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Suporte prioritário 24/7</span>
+              </div>
+            </div>
+            <div class="pricing-action">
+              <a href="#" class="btn btn-primary">Começar Agora</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Testimonials Section -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Depoimentos</div>
+        <h2 class="section-title">O Que Nossos <span>Clientes</span> Dizem</h2>
+        <p class="section-description">Veja como o BrainQuest tem transformado a pesquisa educacional em instituições de todo o país.</p>
+      </div>
+      
+      <div class="testimonials-wrapper">
+        <div class="testimonial-slider" id="testimonialSlider">
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-content">"O HayeAI me ajudou muito durante meu TCC! As explicações são claras e o suporte para escrita acadêmica é incrível. Consegui melhorar muito minha produção científica."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">MA</div>
+              <div class="testimonial-info">
+                <h4>Maria Alves</h4>
+                <p>Estudante de Engenharia</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-content">"A plataforma transformou nossa maneira de conduzir pesquisas acadêmicas. A análise de dados e geração de insights são impressionantes."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">A</div>
+              <div class="testimonial-info">
+                <h4>Ana Beatriz</h4>
+                <p>Professora, Instituto de Pesquisa</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-content">"A facilidade de uso e a precisão das análises nos ajudaram a melhorar significativamente nossa produção acadêmica."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">R</div>
+              <div class="testimonial-info">
+                <h4>Rafael Santos</h4>
+                <p>Diretor de Pesquisa, Centro Universitário</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="slider-nav prev"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-nav next"><i class="fas fa-chevron-right"></i></button>
+        <div class="testimonial-dots">
+          <div class="testimonial-dot active"></div>
+          <div class="testimonial-dot"></div>
+          <div class="testimonial-dot"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CTA Section -->
+  <section class="cta-section" id="cta">
+    <div class="cta-bg"></div>
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Pronto para Transformar seu Aprendizado?</h2>
+        <p class="cta-description">Junte-se a milhares de estudantes que já estão aproveitando o poder da IA para melhorar seus estudos.</p>
+      
+  
+        <div class="cta-buttons">
+          <a href="#" class="btn btn-secondary btn-lg">Ver Demonstração</a>
+          <a href="src\pages\index.tsx" class="btn btn-primary btn-lg">Experimente Agora</a>
+        </div>
+   
+      
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-col">
+          <div class="footer-logo"> HayeAI</div>
+          <p class="footer-description">Revolucionando a forma de aprender com inteligência artificial avançada, tornando o conhecimento mais acessível e eficiente para todos.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h4 class="footer-title">Navegação</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Início</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Ferramentas</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Planos</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Suporte</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h4 class="footer-title">Recursos</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Tutoriais</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Materiais</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Comunidade</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h4 class="footer-title">Fique por dentro</h4>
+          <p class="footer-newsletter">Receba dicas de estudo, novidades sobre IA e conteúdo exclusivo.</p>
+         
+        
+          <form class="newsletter-form" id="newsletterForm">
+            <div class="form-group">
+              <h4 class="newsletter-title">Newsletter</h4>
+              <label for="newsletterName" class="form-label">Nome</label>
+              <input type="text" class="newsletter-input" placeholder="Digite seu nome" id="newsletterName" required>
+            </div>
+            <div class="form-group">
+              <label for="newsletterEmail" class="form-label">Email</label>
+              <input type="email" class="newsletter-input" placeholder="Digite seu e-mail" id="newsletterEmail" required>
+            </div>
+            <button type="submit" class="newsletter-btn" id="newsletterSubmit" disabled>
+              Enviar
+            </button>
+          </form>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const form = document.getElementById('newsletterForm');
+              const nameInput = document.getElementById('newsletterName');
+              const emailInput = document.getElementById('newsletterEmail');
+              const submitBtn = document.getElementById('newsletterSubmit');
+
+              function validateForm() {
+                submitBtn.disabled = !(nameInput.value.trim() && emailInput.value.trim());
+              }
+
+              nameInput.addEventListener('input', validateForm);
+              emailInput.addEventListener('input', validateForm);
+
+              form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (nameInput.value.trim() && emailInput.value.trim()) {
+                  // Aqui você pode adicionar a lógica de envio do formulário
+                  console.log('Formulário enviado:', {
+                    nome: nameInput.value,
+                    email: emailInput.value
+                  });
+                }
+              });
+            });
+          </script>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025  HayeAI. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-container">
+      <div class="modal-close">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="modal-header">
+        <h3 class="modal-title">Acesse sua Conta</h3>
+        <p class="modal-subtitle">Entre com suas credenciais para acessar a plataforma</p>
+      </div>
+      <div class="modal-body">
+        <form class="login-form">
+          <div class="form-group">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" id="email" class="form-input" placeholder="admin@admin">
+          </div>
+          <div class="form-group">
+            <label for="password" class="form-label">Senha</label>
+            <input type="password" id="password" class="form-input" placeholder="•••••">
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Lembrar meus dados</label>
+          </div>
+          <div class="forgot-password">
+            <a href="#">Esqueceu sua senha?</a>
+          </div>
+          <button type="submit" class="form-submit">Entrar</button>
+        </form>
+        
+        <div class="modal-divider">
+          <span>Ou entre com</span>
+        </div>
+        
+        <div class="social-logins">
+          <div class="social-login">
+            <i class="fab fa-google"></i>
+            <span>Google</span>
+          </div>
+          <div class="social-login">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p>Ainda não tem uma conta? <a href="#" id="showSignup">Cadastre-se</a></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Signup Modal -->
+  <div class="modal" id="signupModal">
+    <div class="modal-container">
+      <div class="modal-close">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="modal-header">
+        <h3 class="modal-title">Crie sua Conta</h3>
+        <p class="modal-subtitle">Comece a transformar seus dados educacionais hoje</p>
+      </div>
+      <div class="modal-body">
+        <form class="login-form">
+          <div class="form-group">
+            <label for="signup-name" class="form-label">Nome Completo</label>
+            <input type="text" id="signup-name" class="form-input" placeholder="Seu nome completo">
+          </div>
+          <div class="form-group">
+            <label for="signup-email" class="form-label">E-mail</label>
+            <input type="email" id="signup-email" class="form-input" placeholder="admin@admin">
+          </div>
+          <div class="form-group">
+            <label for="signup-password" class="form-label">Senha</label>
+            <input type="password" id="signup-password" class="form-input" placeholder="•••••">
+          </div>
+          <div class="form-group">
+            <label for="signup-confirm" class="form-label">Confirme a Senha</label>
+            <input type="password" id="signup-confirm" class="form-input" placeholder="Confirme sua senha">
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="terms" name="terms">
+            <label for="terms">Eu concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a></label>
+          </div>
+          <button type="submit" class="form-submit">Criar Conta</button>
+        </form>
+        
+        <div class="modal-divider">
+          <span>Ou cadastre-se com</span>
+        </div>
+        
+        <div class="social-logins">
+          <div class="social-login">
+            <i class="fab fa-google"></i>
+            <span>Google</span>
+          </div>
+          <div class="social-login">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p>Já tem uma conta? <a href="#" id="showLogin">Faça login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <style>
+.testimonials-wrapper {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.testimonial-slider {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-card {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.5s ease;
+}
+
+.testimonial-card.active {
+  opacity: 1;
+  transform: translateX(0);
+  position: relative;
+}
+
+.testimonial-nav {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.testimonial-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(67, 97, 238, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.testimonial-dot.active {
+  background: var(--primary);
+  transform: scale(1.2);
+}
+
+.slider-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--white);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.slider-nav:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.slider-nav.prev {
+  left: -20px;
+}
+
+.slider-nav.next {
+  right: -20px;
+}
+</style>
+
+  <style>
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 500px;
+  background: var(--white);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.3);
+  transform: rotate(90deg);
+}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.testimonial-card');
+    const dots = document.querySelectorAll('.testimonial-dot');
+    const prevBtn = document.querySelector('.slider-nav.prev');
+    const nextBtn = document.querySelector('.slider-nav.next');
+    let autoSlideInterval;
+
+    function showSlide(index) {
+      const oldSlide = slides[currentSlide];
+      currentSlide = index;
+
+      if (currentSlide >= slides.length) currentSlide = 0;
+      if (currentSlide < 0) currentSlide = slides.length - 1;
+
+      const newSlide = slides[currentSlide];
+
+      // Remove active class from all slides and dots
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active'));
+
+      // Add active class to current slide and dot
+      newSlide.classList.add('active');
+      dots[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    function startAutoSlide() {
+      autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoSlide() {
+      clearInterval(autoSlideInterval);
+    }
+
+    // Initialize slider
+    document.addEventListener('DOMContentLoaded', () => {
+      showSlide(0);
+      startAutoSlide();
+
+      // Add event listeners
+      document.querySelector('.testimonial-slider').addEventListener('mouseenter', stopAutoSlide);
+      document.querySelector('.testimonial-slider').addEventListener('mouseleave', startAutoSlide);
+
+      document.querySelector('.slider-nav.prev').addEventListener('click', () => {
+        prevSlide();
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      document.querySelector('.slider-nav.next').addEventListener('click', () => {
+        nextSlide();
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          showSlide(index);
+          stopAutoSlide();
+          startAutoSlide();
+        });
+      });
+    });
+  </script>
+  <script>
+    $(document).ready(function() {
+      // Smooth scrolling
+      $('a[href*="#"]').on('click', function(e) {
+        e.preventDefault();
+        $('html, body').animate(
+          {
+            scrollTop: $($(this).attr('href')).offset().top,
+          },
+          500,
+          'linear'
+        );
+      });
+      
+      // Pricing toggle
+      $('.toggle-switch, .toggle-option').on('click', function() {
+        $('.toggle-switch').toggleClass('yearly');
+        $('.toggle-option').toggleClass('active');
+        
+        // Add fade out animation
+        $('.pricing-amount, .pricing-period').addClass('fade-out').removeClass('fade-in');
+        
+        setTimeout(() => {
+          // Toggle prices between monthly and yearly
+          if ($(this).hasClass('yearly')) {
+            // Yearly prices (20% discount)
+            $('#student-price').html('R$278<small>/ano</small>');
+            $('#student-period').text('Economia de R$70/ano');
+            $('#pro-price').html('R$948<small>/ano</small>');
+            $('#pro-period').text('Economia de R$240/ano');
+            $('#university-price').html('R$1236<small>/ano</small>');
+            $('#university-period').text('Economia de R$312/ano');
+          } else {
+            // Monthly prices
+            $('#student-price').html('R$29<small>/mês</small>');
+            $('#student-period').text('Cobrado mensalmente');
+            $('#pro-price').html('R$99<small>/mês</small>');
+            $('#pro-period').text('Ideal para estudantes avançados');
+            $('#university-price').html('R$129<small>/mês</small>');
+            $('#university-period').text('Ideal para Graduação e Pós');
+          }
+          
+          // Add fade in animation
+          $('.pricing-amount, .pricing-period').removeClass('fade-out').addClass('fade-in');
+        }, 300);
+      });
+      
+      // Modal handling
+      $('.btn-login, .btn-signup').on('click', function(e) {
+        e.preventDefault();
+        const target = $(this).hasClass('btn-signup') ? '#signupModal' : '#loginModal';
+        $(target).addClass('active');
+      });
+      
+      $('.modal-close').on('click', function() {
+        $('.modal').removeClass('active');
+      });
+      
+      $('#showSignup').on('click', function(e) {
+        e.preventDefault();
+        $('#loginModal').removeClass('active');
+        $('#signupModal').addClass('active');
+      });
+      
+      $('#showLogin').on('click', function(e) {
+        e.preventDefault();
+        $('#signupModal').removeClass('active');
+        $('#loginModal').addClass('active');
+      });
+      
+      // Particles.js initialization
+      if($('#particles').length > 0) {
+        particlesJS('particles', {
+          "particles": {
+            "number": {
+              "value": 80,
+              "density": {
+                "enable": true,
+                "value_area": 800
+              }
+            },
+            "color": {
+              "value": "#ffffff"
+            },
+            "opacity": {
+              "value": 0.5,
+              "random": false
+            },
+            "size": {
+              "value": 3,
+              "random": true
+            },
+            "line_linked": {
+              "enable": true,
+              "distance": 150,
+              "color": "#ffffff",
+              "opacity": 0.4,
+              "width": 1
+            },
+            "move": {
+              "enable": true,
+              "speed": 2,
+              "direction": "none",
+              "random": false,
+              "straight": false,
+              "out_mode": "out",
+              "bounce": false
+            }
+          },
+          "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+              "onhover": {
+                "enable": true,
+                "mode": "grab"
+              },
+              "onclick": {
+                "enable": true,
+                "mode": "push"
+              },
+              "resize": true
+            }
+          },
+          "retina_detect": true
+        });
+      }
+    });
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get modal elements
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    
+    // Get buttons that open the modals
+    const loginBtn = document.querySelector('.login-btn');
+    const signupBtn = document.querySelector('.signup-btn');
+    const showSignupLink = document.getElementById('showSignup');
+    const showLoginLink = document.getElementById('showLogin');
+    
+    // Get close buttons
+    const closeButtons = document.querySelectorAll('.modal-close');
+    
+    // Functions to handle modals
+    function openLoginModal() {
+      loginModal.style.display = 'flex';
+      signupModal.style.display = 'none';
+    }
+    
+    function openSignupModal() {
+      signupModal.style.display = 'flex';
+      loginModal.style.display = 'none';
+    }
+    
+    function closeModals() {
+      loginModal.style.display = 'none';
+      signupModal.style.display = 'none';
+    }
+    
+    // Event listeners
+    loginBtn.addEventListener('click', openLoginModal);
+    signupBtn.addEventListener('click', openSignupModal);
+    showSignupLink.addEventListener('click', openSignupModal);
+    showLoginLink.addEventListener('click', openLoginModal);
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      if (event.target === loginModal || event.target === signupModal) {
+        closeModals();
+      }
+    });
+    
+    // Close button functionality
+    closeButtons.forEach(button => {
+      button.addEventListener('click', closeModals);
+    });
+  });
+  </script>
+</body>
+</html>
+

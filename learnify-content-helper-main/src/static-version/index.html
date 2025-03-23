@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnify Content Helper</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Elementos de fundo -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- Cabeçalho -->
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">Learnify</h1>
+        <p class="subtitle">Assistente de conteúdo e aprendizagem</p>
+      </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="container main-content">
+      <div class="content-grid">
+        <!-- Ferramentas e área principal -->
+        <div class="left-column">
+          <h2 class="section-title">Ferramentas</h2>
+          
+          <div class="tools-grid">
+            <div class="tool-card" data-id="assistant">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              </div>
+              <h3>Assistente de Aprendizagem</h3>
+              <p>Pergunte e obtenha explicações detalhadas sobre qualquer assunto</p>
+            </div>
+
+            <div class="tool-card" data-id="generator">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+              </div>
+              <h3>Gerador de Conteúdo</h3>
+              <p>Crie poemas, blogs e ensaios com facilidade</p>
+            </div>
+
+            <div class="tool-card" data-id="language">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 2-2.4 12m4.8 0L12 2"/><path d="M7 14h10"/><path d="M5 20a20 20 0 0 0 7-1 20 20 0 0 0 7 1"/></svg>
+              </div>
+              <h3>Idioma</h3>
+              <p>Traduza textos e verifique a gramática</p>
+            </div>
+
+            <div class="tool-card" data-id="essay">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              </div>
+              <h3>Ajudante de Ensaios</h3>
+              <p>Aprimore e parafraseie seus textos acadêmicos</p>
+            </div>
+
+            <div class="tool-card" data-id="summarizer">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              </div>
+              <h3>Resumidor</h3>
+              <p>Resuma textos, livros e extraia palavras-chave</p>
+            </div>
+
+            <div class="tool-card" data-id="code">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </div>
+              <h3>Aprimorador de Código</h3>
+              <p>Melhore, otimize e corrija seu código</p>
+            </div>
+
+            <div class="tool-card" data-id="youtube">
+              <div class="tool-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+              </div>
+              <h3>Resumo do YouTube</h3>
+              <p>Obtenha resumos de vídeos do YouTube</p>
+            </div>
+          </div>
+
+          <div class="selected-tool-section">
+            <h2 id="selected-tool-title">Selecione uma ferramenta para começar</h2>
+            
+            <div class="response-area">
+              <div id="response-content" class="response-content"></div>
+            </div>
+
+            <div id="input-area" class="input-area hidden">
+              <textarea id="query-input" placeholder="Digite sua pergunta ou solicitação aqui..."></textarea>
+              
+              <div id="youtube-input-container" class="input-option hidden">
+                <input type="text" id="youtube-url" placeholder="Cole o URL do YouTube aqui">
+              </div>
+
+              <div id="file-input-container" class="input-option hidden">
+                <label for="file-upload" class="file-upload-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Escolher arquivo
+                </label>
+                <input type="file" id="file-upload" class="hidden">
+                <span id="file-name">Nenhum arquivo selecionado</span>
+              </div>
+
+              <button id="submit-button" class="btn-primary">Enviar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="right-column">
+          <div class="history-section">
+            <div class="history-header">
+              <h2 class="section-title">Histórico</h2>
+              <button id="clear-history" class="btn-secondary">Limpar</button>
+            </div>
+            
+            <div id="history-items" class="history-items">
+              <!-- Histórico será adicionado dinamicamente aqui -->
+              <div class="empty-history">
+                <p>Seu histórico aparecerá aqui</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
