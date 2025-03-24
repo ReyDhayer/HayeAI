@@ -1,5 +1,10 @@
 {
+  "name": "learnify-content-helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "build": "vite build"
+    "dev": "cd learnify-content-helper-main && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
