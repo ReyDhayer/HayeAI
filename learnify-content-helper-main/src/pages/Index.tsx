@@ -9,6 +9,8 @@ import InputArea from "@/components/InputArea";
 import HistorySection from "@/components/HistorySection";
 import { toast } from "sonner";
 import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube } from "lucide-react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getVideoDetails } from '@/lib/api/youtube';
 
 const Index = () => {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
@@ -123,87 +125,151 @@ const Index = () => {
 
   const handleSubmit = async (text: string, file?: File | null, youtubeUrl?: string) => {
     try {
-      // Clear previous response
+      if (!selectedTool) {
+        toast.error("Por favor, selecione uma ferramenta primeiro.");
+        return;
+      }
+  
       setResponse({
         content: "",
         loading: true,
         error: null,
       });
-
-      // Simulate API call with timeout
-      setTimeout(() => {
-        // This would be replaced with actual API call in production
-        const toolName = tools.find(t => t.id === selectedTool)?.title || "Ferramenta";
-        
-        // Create mock response based on tool and input
-        let mockResponse = "";
-        if (text) {
-          mockResponse = `<h3>Resposta do ${toolName}</h3><p>Aqui está uma resposta para: "${text}"</p>`;
-          
-          if (file) {
-            mockResponse += `<p>Arquivo processado: ${file.name}</p>`;
+  
+      let fileContent = "";
+      if (file) {
+        fileContent = await readFileContent(file);
+        text = fileContent || text;
+      }
+  
+      const genAI = new GoogleGenerativeAI("AIzaSyBjrD1WtKKseislU-NuWpdU0o5qUziX5A0");
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  
+      let prompt = "";
+      switch (selectedTool) {
+        case "assistant":
+          prompt = `Como um assistente de aprendizagem especializado, forneça uma explicação detalhada e didática sobre: ${text}. Use exemplos práticos e divida a explicação em tópicos quando apropriado.`;
+          break;
+        case "generator":
+          prompt = `Como um gerador de conteúdo criativo, crie um texto original e envolvente sobre: ${text}. Mantenha um tom adequado ao tema e use recursos literários apropriados.`;
+          break;
+        case "language":
+          prompt = `Como um especialista em idiomas, analise ou traduza o seguinte texto mantendo o contexto e nuances: ${text}. Forneça explicações sobre escolhas de tradução quando relevante.`;
+          break;
+        case "essay":
+          prompt = `Como um assistente de redação acadêmica, aprimore o seguinte texto mantendo o estilo acadêmico e formal: ${text}. Sugira melhorias na estrutura e argumentação.`;
+          break;
+        case "summarizer":
+          prompt = `Como um especialista em resumos, faça um resumo conciso e objetivo do seguinte texto, destacando os pontos principais: ${text}. Identifique e liste as palavras-chave.`;
+          break;
+        case "code":
+          prompt = `Como um especialista em programação, analise e melhore o seguinte código: ${text}. 
+          Forneça:
+          1. Análise do código atual
+          2. Sugestões de otimização
+          3. Possíveis problemas de segurança
+          4. Boas práticas não aplicadas
+          5. Código melhorado com comentários`;
+          break;
+        case "youtube":
+          try {
+            const videoDetails = await getVideoDetails(youtubeUrl || text);
+            prompt = `Analise este vídeo do YouTube:
+              Título: ${videoDetails.title}
+              Canal: ${videoDetails.channelTitle}
+              Descrição: ${videoDetails.description}
+              Duração: ${videoDetails.duration}
+  
+              Por favor, forneça:
+              1. Resumo do conteúdo baseado na descrição
+              2. Principais tópicos abordados
+              3. Pontos-chave do vídeo
+              4. Conclusões principais
+              5. Sugestões de conteúdo relacionado`;
+          } catch (error) {
+            throw new Error('Erro ao processar informações do vídeo. Verifique se a URL do YouTube é válida.');
           }
+          break;
+        case "research":
+          prompt = `Como um assistente de pesquisa acadêmica, forneça uma análise aprofundada sobre: ${text}. 
+          Inclua:
+          1. Contextualização do tema
+          2. Principais teorias e autores
+          3. Metodologias relevantes
+          4. Tendências atuais
+          5. Referências bibliográficas`;
+          break;
+        default:
+          prompt = `${tools.find(t => t.id === selectedTool)?.title}: ${text}`;
+      }
+  
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      // Format the response with better HTML structure
+      const formattedResponse = `
+        <div class="prose max-w-none space-y-6">
+          <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 mb-6">
+            <h2 class="text-2xl font-bold text-blue-600 mb-2">
+              ${tools.find(t => t.id === selectedTool)?.title}
+            </h2>
+            <p class="text-gray-600 italic">Consulta: ${text}</p>
+          </div>
           
-          if (youtubeUrl) {
-            mockResponse += `<p>Link do YouTube analisado: ${youtubeUrl}</p>`;
-          }
+          <div class="space-y-4">
+            ${response.text()
+              .split('\n')
+              .map(line => {
+                // Format headings
+                if (line.startsWith('#')) {
+                  const level = line.match(/^#+/)[0].length;
+                  const text = line.replace(/^#+\s*/, '');
+                  return `<h${level} class="text-xl font-semibold text-gray-800 mt-6">${text}</h${level}>`;
+                }
+                // Format lists
+                if (line.match(/^\d+\./)) {
+                  return `<div class="flex gap-2 items-start">
+                    <span class="text-blue-500 font-bold">${line.match(/^\d+\./)[0]}</span>
+                    <p class="text-gray-700">${line.replace(/^\d+\.\s*/, '')}</p>
+                  </div>`;
+                }
+                // Format normal paragraphs
+                return line ? `<p class="text-gray-700">${line}</p>` : '<br/>';
+              })
+              .join('\n')}
+          </div>
           
-          // Add some more detailed mock content based on the tool
-          switch(selectedTool) {
-            case "assistant":
-              mockResponse += "<p>Como assistente, posso explicar conceitos, responder perguntas e fornecer informações detalhadas sobre qualquer assunto.</p>";
-              break;
-            case "generator":
-              mockResponse += "<p>Como gerador de conteúdo, posso criar poemas, artigos de blog e ensaios completos com base nas suas instruções.</p>";
-              break;
-            case "language":
-              mockResponse += "<p>Como ferramenta de idioma, posso traduzir textos, verificar gramática e ortografia, e ajudar com a fluência em diferentes línguas.</p>";
-              break;
-            case "essay":
-              mockResponse += "<p>Como ajudante de ensaios, posso aprimorar a estrutura, clareza e estilo dos seus textos acadêmicos, além de parafrasear conteúdo.</p>";
-              break;
-            case "summarizer":
-              mockResponse += "<p>Como resumidor, posso condensar textos longos, extrair os pontos principais e identificar palavras-chave importantes.</p>";
-              break;
-            case "code":
-              mockResponse += "<p>Como aprimorador de código, posso otimizar, refatorar e corrigir problemas no seu código, além de sugerir melhorias de performance.</p>";
-              break;
-            case "youtube":
-              mockResponse += "<p>Como resumidor de YouTube, posso analisar vídeos e fornecer sínteses claras do conteúdo, pontos principais e conclusões.</p>";
-              break;
-          }
-        } else if (file) {
-          mockResponse = `<h3>Arquivo Processado</h3><p>Analisamos seu arquivo: ${file.name}</p>`;
-        } else if (youtubeUrl) {
-          mockResponse = `<h3>Resumo do Vídeo</h3><p>Analisamos o vídeo: ${youtubeUrl}</p><p>Este é um resumo simulado do conteúdo do vídeo. Em uma implementação real, extrairíamos informações do vídeo do YouTube.</p>`;
-        }
-
-        // Update response state
-        setResponse({
-          content: mockResponse,
-          loading: false,
-          error: null,
-        });
-
-        // Add to history
-        const newHistoryItem: HistoryItem = {
-          id: uuidv4(),
-          toolId: selectedTool || "",
-          query: text || file?.name || youtubeUrl || "Solicitação",
-          response: mockResponse,
-          timestamp: new Date(),
-        };
-
-        setHistory(prev => [newHistoryItem, ...prev]);
-        
-        // Show toast notification
-        toast.success("Resposta gerada com sucesso!");
-      }, 1500);
+          <div class="mt-6 pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-500">
+              Gerado por ${tools.find(t => t.id === selectedTool)?.title.toLowerCase()}
+            </p>
+          </div>
+        </div>
+      `;
+  
+      setResponse({
+        content: formattedResponse,
+        loading: false,
+        error: null,
+      });
+  
+      const newHistoryItem: HistoryItem = {
+        id: uuidv4(),
+        toolId: selectedTool,
+        query: text || file?.name || youtubeUrl || "Solicitação",
+        response: formattedResponse,
+        timestamp: new Date(),
+      };
+  
+      setHistory(prev => [newHistoryItem, ...prev]);
+      toast.success("Resposta gerada com sucesso!");
+  
     } catch (error) {
+      console.error('Error:', error);
       setResponse({
         content: "",
         loading: false,
-        error: "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.",
+        error: error instanceof Error ? error.message : "Erro ao processar solicitação",
       });
       
       toast.error("Erro ao gerar resposta.");
@@ -294,3 +360,21 @@ const Index = () => {
 };
 
 export default Index;
+
+// Add this helper function
+const readFileContent = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      resolve(event.target?.result as string);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    if (file.type.includes('text') || file.type.includes('application')) {
+      reader.readAsText(file);
+    } else {
+      reject(new Error('Formato de arquivo não suportado'));
+    }
+  });
+};
