@@ -136,12 +136,6 @@ const Index = () => {
         error: null,
       });
   
-      let fileContent = "";
-      if (file) {
-        fileContent = await readFileContent(file);
-        text = fileContent || text;
-      }
-  
       const genAI = new GoogleGenerativeAI("AIzaSyBjrD1WtKKseislU-NuWpdU0o5qUziX5A0");
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
@@ -360,21 +354,3 @@ const Index = () => {
 };
 
 export default Index;
-
-// Add this helper function
-const readFileContent = async (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      resolve(event.target?.result as string);
-    };
-    reader.onerror = (error) => {
-      reject(error);
-    };
-    if (file.type.includes('text') || file.type.includes('application')) {
-      reader.readAsText(file);
-    } else {
-      reject(new Error('Formato de arquivo não suportado'));
-    }
-  });
-};
