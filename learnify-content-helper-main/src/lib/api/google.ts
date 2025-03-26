@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const GOOGLE_API_KEY = 'AIzaSyBjrD1WtKKseislU-NuWpdU0o5qUziX5A0';
+const GOOGLE_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GOOGLE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 interface GoogleAIResponse {
