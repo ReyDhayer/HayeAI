@@ -8,7 +8,7 @@ import MainContent from "@/components/MainContent";
 import InputArea from "@/components/InputArea";
 import HistorySection from "@/components/HistorySection";
 import { toast } from "sonner";
-import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube } from "lucide-react";
+import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube, Presentation, Calendar, ClipboardList, Network } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getVideoDetails } from '@/lib/api/youtube';
 
@@ -22,6 +22,30 @@ const Index = () => {
   });
 
   const tools: ToolProps[] = [
+    {
+      id: "defense-simulation",
+      title: "Simulação de Defesa",
+      description: "Prepare-se para sua defesa com simulações interativas e feedback detalhado",
+      icon: "Presentation",
+    },
+    {
+      id: "deadline-tracker",
+      title: "Monitoramento de Prazos",
+      description: "Acompanhe prazos de submissões e entregas acadêmicas",
+      icon: "Calendar",
+    },
+    {
+      id: "submission-manager",
+      title: "Gerenciador de Submissões",
+      description: "Organize e acompanhe suas submissões acadêmicas",
+      icon: "ClipboardList",
+    },
+    {
+      id: "mind-map",
+      title: "Mapa Mental",
+      description: "Crie mapas mentais interativos para organizar suas ideias",
+      icon: "Network",
+    },
     {
       id: "assistant",
       title: "Assistente de Aprendizagem",
@@ -141,6 +165,46 @@ const Index = () => {
   
       let prompt = "";
       switch (selectedTool) {
+        case "defense-simulation":
+          prompt = `Como um simulador de defesa de tese, vou ajudar você com: ${text}.
+          Por favor, forneça:
+          1. Feedback sobre a estrutura da apresentação
+          2. Sugestões de melhoria na argumentação
+          3. Possíveis perguntas da banca
+          4. Dicas para lidar com nervosismo
+          5. Recomendações de postura e comunicação`;
+          break;
+
+        case "deadline-tracker":
+          prompt = `Como um sistema de monitoramento de prazos acadêmicos, analise: ${text}.
+          Por favor, forneça:
+          1. Cronograma sugerido
+          2. Marcos importantes
+          3. Lembretes críticos
+          4. Priorização de tarefas
+          5. Dicas de gestão de tempo`;
+          break;
+
+        case "submission-manager":
+          prompt = `Como um gerenciador de submissões acadêmicas, ajude com: ${text}.
+          Por favor, forneça:
+          1. Status da submissão
+          2. Checklist de requisitos
+          3. Próximos passos
+          4. Documentos necessários
+          5. Dicas para aumentar chances de aprovação`;
+          break;
+
+        case "mind-map":
+          prompt = `Como uma ferramenta de mapa mental, organize as ideias sobre: ${text}.
+          Por favor, forneça:
+          1. Estrutura hierárquica do mapa
+          2. Conexões entre conceitos
+          3. Palavras-chave principais
+          4. Ramificações sugeridas
+          5. Dicas de organização visual`;
+          break;
+
         case "assistant":
           prompt = `Como um assistente de aprendizagem especializado, forneça uma explicação detalhada e didática sobre: ${text}. Use exemplos práticos e divida a explicação em tópicos quando apropriado.`;
           break;
