@@ -8,7 +8,7 @@ import MainContent from "@/components/MainContent";
 import InputArea from "@/components/InputArea";
 import HistorySection from "@/components/HistorySection";
 import { toast } from "sonner";
-import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube, Presentation, Calendar, ClipboardList, Network } from "lucide-react";
+import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getVideoDetails } from '@/lib/api/youtube';
 
@@ -23,27 +23,27 @@ const Index = () => {
 
   const tools: ToolProps[] = [
     {
-      id: "defense-simulation",
-      title: "Simulação de Defesa",
-      description: "Prepare-se para sua defesa com simulações interativas e feedback detalhado",
+      id: "defense-simulator",
+      title: "Simulador de Defesa",
+      description: "Pratique sua defesa de tese com feedback em tempo real",
       icon: "Presentation",
     },
     {
-      id: "deadline-tracker",
-      title: "Monitoramento de Prazos",
+      id: "deadline-monitor",
+      title: "Monitor de Prazos",
       description: "Acompanhe prazos de submissões e entregas acadêmicas",
       icon: "Calendar",
     },
     {
-      id: "submission-manager",
-      title: "Gerenciador de Submissões",
-      description: "Organize e acompanhe suas submissões acadêmicas",
-      icon: "ClipboardList",
+      id: "defense-assistant",
+      title: "Assistente de Defesa",
+      description: "Auxílio na preparação e estruturação da defesa de tese",
+      icon: "GraduationCap",
     },
     {
       id: "mind-map",
       title: "Mapa Mental",
-      description: "Crie mapas mentais interativos para organizar suas ideias",
+      description: "Crie mapas mentais para organizar ideias e conceitos",
       icon: "Network",
     },
     {
@@ -165,44 +165,41 @@ const Index = () => {
   
       let prompt = "";
       switch (selectedTool) {
-        case "defense-simulation":
-          prompt = `Como um simulador de defesa de tese, vou ajudar você com: ${text}.
-          Por favor, forneça:
-          1. Feedback sobre a estrutura da apresentação
-          2. Sugestões de melhoria na argumentação
-          3. Possíveis perguntas da banca
-          4. Dicas para lidar com nervosismo
-          5. Recomendações de postura e comunicação`;
+        case "defense-simulator":
+          prompt = `Como um simulador de defesa de tese, vou atuar como uma banca examinadora virtual para: ${text}. 
+          Forneça:
+          1. Análise da apresentação
+          2. Questões típicas da banca
+          3. Sugestões de melhoria
+          4. Feedback detalhado
+          5. Pontos fortes e fracos`;
           break;
-
-        case "deadline-tracker":
-          prompt = `Como um sistema de monitoramento de prazos acadêmicos, analise: ${text}.
-          Por favor, forneça:
-          1. Cronograma sugerido
-          2. Marcos importantes
-          3. Lembretes críticos
-          4. Priorização de tarefas
-          5. Dicas de gestão de tempo`;
+        case "deadline-monitor":
+          prompt = `Como um monitor de prazos acadêmicos, analise e organize os seguintes prazos e compromissos: ${text}.
+          Forneça:
+          1. Cronograma organizado
+          2. Alertas de proximidade
+          3. Sugestões de priorização
+          4. Marcos importantes
+          5. Recomendações de gestão de tempo`;
           break;
-
-        case "submission-manager":
-          prompt = `Como um gerenciador de submissões acadêmicas, ajude com: ${text}.
-          Por favor, forneça:
-          1. Status da submissão
-          2. Checklist de requisitos
-          3. Próximos passos
-          4. Documentos necessários
-          5. Dicas para aumentar chances de aprovação`;
+        case "defense-assistant":
+          prompt = `Como um assistente de defesa de tese, ajude a preparar e estruturar a defesa: ${text}.
+          Forneça:
+          1. Estrutura da apresentação
+          2. Pontos-chave a destacar
+          3. Estratégias de comunicação
+          4. Dicas de postura e oratória
+          5. Preparação para perguntas`;
           break;
-
         case "mind-map":
-          prompt = `Como uma ferramenta de mapa mental, organize as ideias sobre: ${text}.
-          Por favor, forneça:
-          1. Estrutura hierárquica do mapa
+          prompt = `Como um criador de mapas mentais, organize as seguintes ideias e conceitos: ${text}.
+          Forneça:
+          1. Estrutura hierárquica
           2. Conexões entre conceitos
           3. Palavras-chave principais
-          4. Ramificações sugeridas
-          5. Dicas de organização visual`;
+          4. Ramificações secundárias
+          5. Sugestões de expansão`;
           break;
 
         case "assistant":
@@ -264,41 +261,61 @@ const Index = () => {
       const result = await model.generateContent(prompt);
       const response = await result.response;
       
-      // Format the response with better HTML structure
+      // Format the response with better HTML structure and animations
       const formattedResponse = `
-        <div class="prose max-w-none space-y-6">
-          <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 mb-6">
-            <h2 class="text-2xl font-bold text-blue-600 mb-2">
-              ${tools.find(t => t.id === selectedTool)?.title}
-            </h2>
-            <p class="text-gray-600 italic">Consulta: ${text}</p>
+        <div class="prose max-w-none space-y-6 backdrop-blur-lg bg-white/40 rounded-2xl p-8 shadow-2xl border border-white/30 animate-fade-in">
+          <div class="bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-2xl p-6 mb-8 transform hover:scale-[1.02] transition-all duration-500 shadow-xl hover:shadow-2xl animate-slide-up">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-inner animate-pulse">
+                <span class="text-white text-2xl font-bold">
+                  ${(() => {
+                    const tool = tools.find(t => t.id === selectedTool);
+                    switch(tool?.icon) {
+                      case 'HelpCircle': return '❓';
+                      case 'Pencil': return '✏️';
+                      case 'Globe': return '🌎';
+                      case 'FileText': return '📄';
+                      case 'Book': return '📚';
+                      case 'Code': return '💻';
+                      case 'Youtube': return '▶️';
+                      default: return '🔍';
+                    }
+                  })()}
+                </span>
+              </div>
+              <h2 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+                ${tools.find(t => t.id === selectedTool)?.title}
+              </h2>
+            </div>
+            <p class="text-gray-700 italic text-xl font-medium">Consulta: ${text}</p>
           </div>
           
-          <div class="space-y-4">
+          <div class="space-y-8">
             ${response.text()
               .split('\n')
-              .map(line => {
+              .map((line, index) => {
                 // Format headings
                 if (line.startsWith('#')) {
                   const level = line.match(/^#+/)[0].length;
                   const text = line.replace(/^#+\s*/, '');
-                  return `<h${level} class="text-xl font-semibold text-gray-800 mt-6">${text}</h${level}>`;
+                  return `<h${level} class="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent py-6 animate-fade-in" style="animation-delay: ${index * 100}ms">${text}</h${level}>`;
                 }
                 // Format lists
                 if (line.match(/^\d+\./)) {
-                  return `<div class="flex gap-2 items-start">
-                    <span class="text-blue-500 font-bold">${line.match(/^\d+\./)[0]}</span>
-                    <p class="text-gray-700">${line.replace(/^\d+\.\s*/, '')}</p>
+                  return `<div class="flex gap-6 items-start p-6 bg-white/50 rounded-xl hover:bg-white/70 transition-all duration-500 backdrop-blur-md shadow-lg hover:shadow-xl animate-slide-up" style="animation-delay: ${index * 100}ms">
+                    <span class="flex items-center justify-center w-10 h-10 text-white text-xl font-bold bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl shadow-inner">${line.match(/^\d+\./)[0].replace('.', '')}</span>
+                    <p class="text-gray-800 text-xl font-medium flex-1 leading-relaxed">${line.replace(/^\d+\.\s*/, '')}</p>
                   </div>`;
                 }
                 // Format normal paragraphs
-                return line ? `<p class="text-gray-700">${line}</p>` : '<br/>';
+                return line ? `<p class="text-gray-800 text-xl font-medium leading-relaxed hover:bg-white/50 p-6 rounded-xl transition-all duration-500 animate-fade-in" style="animation-delay: ${index * 100}ms">${line}</p>` : '<br/>';
               })
               .join('\n')}
           </div>
           
-          <div class="mt-6 pt-4 border-t border-gray-200">
-            <p class="text-sm text-gray-500">
+          <div class="mt-10 pt-8 border-t border-white/30">
+            <p class="text-base text-gray-600 flex items-center gap-3 font-medium">
+              <span class="w-3 h-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full animate-pulse"></span>
               Gerado por ${tools.find(t => t.id === selectedTool)?.title.toLowerCase()}
             </p>
           </div>
