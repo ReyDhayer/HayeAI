@@ -1,5 +1,12 @@
-import MonitorPrazos from './MonitorPrazos';
+import React from 'react';
 
-export default function MonitorPrazosPage() {
-  return <MonitorPrazos />;
-}
+const MonitorPrazosPage = () => {
+  return (
+    <div>
+      <h1>Monitor de Prazos</h1>
+      {/* Add your deadline monitoring logic here */}
+    </div>
+  );
+};
+
+export default MonitorPrazosPage;
