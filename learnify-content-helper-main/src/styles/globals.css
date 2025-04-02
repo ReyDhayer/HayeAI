@@ -1,0 +1,46 @@
+/* Adicione ao seu arquivo CSS global */
+
+.mind-map-container {
+  position: relative;
+}
+
+.mind-map-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  height: 100%;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.5), transparent);
+  z-index: 0;
+}
+
+.mind-map-node {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.mind-map-children {
+  position: relative;
+}
+
+.mind-map-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+  z-index: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mind-map-node {
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: calc(var(--index) * 0.1s);
+}

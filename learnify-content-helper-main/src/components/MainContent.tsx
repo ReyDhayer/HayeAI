@@ -6,9 +6,10 @@ import { useFadeIn } from "@/lib/animations";
 interface MainContentProps {
   selectedTool: string | null;
   response: AIResponse;
+  selectedModel?: { icon: string; name: string };
 }
 
-const MainContent: React.FC<MainContentProps> = ({ selectedTool, response }) => {
+const MainContent: React.FC<MainContentProps> = ({ selectedTool, response, selectedModel }) => {
   const fadeIn = useFadeIn(200);
 
   // Placeholder responses for each tool
@@ -51,6 +52,12 @@ const MainContent: React.FC<MainContentProps> = ({ selectedTool, response }) => 
     if (response.content) {
       return (
         <div className="prose max-w-none dark:prose-invert">
+          {selectedModel && (
+            <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+              <span>{selectedModel.icon}</span>
+              <span>Resposta do {selectedModel.name}</span>
+            </div>
+          )}
           <div dangerouslySetInnerHTML={{ __html: response.content }} />
         </div>
       );

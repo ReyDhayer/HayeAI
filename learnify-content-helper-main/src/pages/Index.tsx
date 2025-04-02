@@ -12,6 +12,7 @@ import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube } from "lucide
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getVideoDetails } from '@/lib/api/youtube';
 
+
 const Index = () => {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -23,28 +24,76 @@ const Index = () => {
 
   const tools: ToolProps[] = [
     {
+      id: "debate-simulator",
+      title: "Simulador de Debate",
+      description: "Treina argumentação para apresentações e discussões em sala de aula",
+      icon: "MessageSquare",
+    },
+    {
+      id: "qa-creator",
+      title: "Criador de Perguntas e Respostas",
+      description: "Gera questões para testar o aprendizado sobre qualquer tema",
+      icon: "HelpCircle",
+    },
+    {
+      id: "exercise-explainer",
+      title: "Explicador de Exercícios",
+      description: "Resolve e explica passo a passo exercícios matemáticos, físicos e químicos",
+      icon: "Calculator",
+    },
+    {
+      id: "text-narrator",
+      title: "Narrador de Textos",
+      description: "Converte textos acadêmicos em áudio para facilitar o estudo",
+      icon: "Headphones",
+    },
+    {
+      id: "speech-trainer",
+      title: "Treinador de Oratória",
+      description: "Analisa sua fala e dá dicas para melhorar sua apresentação oral",
+      icon: "Mic",
+    },
+    {
+      id: "peer-review",
+      title: "Simulador de Revisão por Pares",
+      description: "Teste seu artigo como se estivesse passando por uma revisão acadêmica real",
+      icon: "Users",
+    },
+    {
+      id: "quiz-generator",
+      title: "Gerador de Questionários",
+      description: "Cria questionários e formulários para coletas de dados em pesquisas",
+      icon: "ListChecks",
+    },
+    {
+      id: "exam-simulator",
+      title: "Simulador de Provas",
+      description: "Gera simulados com questões de vestibulares, ENEM e concursos",
+      icon: "FileCheck",
+    },
+    {
       id: "defense-simulator",
       title: "Simulador de Defesa",
       description: "Pratique sua defesa de tese com feedback em tempo real",
       icon: "Presentation",
     },
     {
-      id: "deadline-monitor",
+      id: "monitor-prazos",
       title: "Monitor de Prazos",
       description: "Acompanhe prazos de submissões e entregas acadêmicas",
       icon: "Calendar",
     },
     {
-      id: "defense-assistant",
-      title: "Assistente de Defesa",
-      description: "Auxílio na preparação e estruturação da defesa de tese",
-      icon: "GraduationCap",
+      id: "mind-map",
+      title: "Mapa Mental AI",
+      description: "Crie mapas mentais avançados com inteligência artificial",
+      icon: "Brain",
     },
     {
-      id: "mind-map",
-      title: "Mapa Mental",
-      description: "Crie mapas mentais para organizar ideias e conceitos",
-      icon: "Network",
+      id: "mind-map-ai",
+      title: "Mapa Mental AI",
+      description: "Crie mapas mentais avançados com inteligência artificial",
+      icon: "BrainCircuit",
     },
     {
       id: "assistant",
@@ -69,6 +118,12 @@ const Index = () => {
       title: "Ajudante de Ensaios",
       description: "Aprimore e parafraseie seus textos acadêmicos",
       icon: "FileText",
+    },
+    {
+      id: "essay-correction",
+      title: "Corretor de Redações",
+      description: "Análise detalhada e correção de redações com feedback personalizado",
+      icon: "ClipboardCheck",
     },
     {
       id: "summarizer",
@@ -136,9 +191,43 @@ const Index = () => {
       description: "Crie redações estruturadas com introdução, desenvolvimento e conclusão",
       icon: "FileText",
     },
+    {
+      id: "bibliography-analyzer",
+      title: "Analisador de Bibliografia",
+      description: "Analise e organize suas referências bibliográficas",
+      icon: "BookOpen",
+    },
+    {
+      id: "methodology-assistant",
+      title: "Assistente de Metodologia",
+      description: "Orientação na escolha e aplicação de metodologias científicas",
+      icon: "FlaskConical",
+    },
+    {
+      id: "presentation-generator",
+      title: "Gerador de Apresentações",
+      description: "Crie apresentações acadêmicas profissionais e impactantes",
+      icon: "Projector",
+    },
   ];
 
   const handleToolSelect = (id: string) => {
+    if (id === "monitor-prazos") {
+      window.location.href = "/monitor-prazos";
+      return;
+    }
+    
+    if (id === "mind-map") {
+      window.location.href = "/mind-map";
+      return;
+    }
+    
+    // Add the new condition for deadline-monitor
+    if (id === "deadline-monitor") {
+      window.location.href = "/monitorprazos";
+      return;
+    }
+    
     setSelectedTool(id);
     setResponse({
       content: "",
@@ -153,16 +242,46 @@ const Index = () => {
         toast.error("Por favor, selecione uma ferramenta primeiro.");
         return;
       }
-  
+
       setResponse({
         content: "",
         loading: true,
         error: null,
       });
-  
+
+      let fileContent = "";
+      let fileType = "";
+
+      if (file) {
+        fileType = file.type;
+        
+        if (file.type.startsWith('audio/')) {
+          // Handle audio file
+          const audioContext = new AudioContext();
+          const arrayBuffer = await file.arrayBuffer();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          // Convert audio to text using Web Speech API
+          const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+          recognition.lang = 'pt-BR';
+          
+          fileContent = await new Promise((resolve, reject) => {
+            recognition.onresult = (event) => {
+              const transcript = event.results[0][0].transcript;
+              resolve(transcript);
+            };
+            recognition.onerror = reject;
+            recognition.start();
+          });
+        } else {
+          // Handle text files
+          fileContent = await file.text();
+        }
+      }
+
       const genAI = new GoogleGenerativeAI("AIzaSyBjrD1WtKKseislU-NuWpdU0o5qUziX5A0");
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
+
       let prompt = "";
       switch (selectedTool) {
         case "defense-simulator":
@@ -258,6 +377,11 @@ const Index = () => {
           prompt = `${tools.find(t => t.id === selectedTool)?.title}: ${text}`;
       }
   
+      // Add file analysis to the prompt if a file is present
+      if (fileContent) {
+        prompt += `\n\nAnálise do arquivo (${fileType}): ${fileContent}`;
+      }
+
       const result = await model.generateContent(prompt);
       const response = await result.response;
       
@@ -435,3 +559,13 @@ const Index = () => {
 };
 
 export default Index;
+
+const Home: React.FC = () => {
+  return (
+    <div>
+  
+    </div>
+  );
+};
+
+// Remove duplicate default export since Index is already exported

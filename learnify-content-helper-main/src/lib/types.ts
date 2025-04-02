@@ -23,8 +23,23 @@ export type ToolType =
   | "code" 
   | "youtube";
 
+// Add these new types
+export interface FileAnalysis {
+  type: string;
+  content: string;
+  metadata?: {
+    size?: number;
+    duration?: number;
+    format?: string;
+  };
+}
+
+// Update AIResponse type
 export interface AIResponse {
   content: string;
   loading: boolean;
-  error: string | null;
+  error: null | string;
+  fileAnalysis?: FileAnalysis;
 }
+
+

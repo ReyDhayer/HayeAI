@@ -1,0 +1,44 @@
+/* Mind Elixir custom styles */
+.mind-map-container {
+  height: 600px;
+  width: 100%;
+  position: relative;
+}
+
+.node-main .content {
+  background: linear-gradient(to right, #7209b7, #4361ee) !important;
+  color: white !important;
+}
+
+.node-history .content {
+  background: linear-gradient(to right, #3a86ff, #4895ef) !important;
+  color: white !important;
+}
+
+.node-data .content {
+  background: linear-gradient(to right, #2a9d8f, #4cc9f0) !important;
+  color: white !important;
+}
+
+.node-context .content {
+  background: linear-gradient(to right, #e9c46a, #f4a261) !important;
+  color: white !important;
+}
+
+.node-date .content {
+  background: linear-gradient(to right, #e63946, #f72585) !important;
+  color: white !important;
+}
+
+.node-important .content {
+  background: linear-gradient(to right, #9d4edd, #c77dff) !important;
+  color: white !important;
+}
+
+.mind-elixir .tooltip {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+}

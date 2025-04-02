@@ -1,7 +1,8 @@
 
 import React, { useState } from "react";
-import { Paperclip, Send, Mic, Trash, Youtube } from "lucide-react";
+import { Paperclip, Send, Mic, Trash, Youtube, ChevronDown } from "lucide-react";
 import { useFadeIn } from "@/lib/animations";
+import { AIModel, AI_MODELS } from "@/lib/types/ai-models";
 
 interface InputAreaProps {
   selectedTool: string | null;
@@ -13,6 +14,8 @@ const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
   const [file, setFile] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [showYoutubeInput, setShowYoutubeInput] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS[0]);
+  const [showModelSelector, setShowModelSelector] = useState(false);
   
   const fadeIn = useFadeIn(300);
 
@@ -81,6 +84,34 @@ const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
               onChange={(e) => setInputText(e.target.value)}
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowModelSelector(!showModelSelector)}
+                  className="flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>{selectedModel.icon}</span>
+                  <ChevronDown size={16} />
+                </button>
+                {showModelSelector && (
+                  <div className="absolute bottom-full right-0 mb-2 bg-background border rounded-lg shadow-lg py-1 min-w-[120px]">
+                    {AI_MODELS.map((model) => (
+                      <button
+                        key={model.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedModel(model);
+                          setShowModelSelector(false);
+                        }}
+                        className="flex items-center space-x-2 w-full px-3 py-2 hover:bg-accent transition-colors"
+                      >
+                        <span>{model.icon}</span>
+                        <span>{model.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <label className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
                 <Paperclip size={20} />
                 <input
