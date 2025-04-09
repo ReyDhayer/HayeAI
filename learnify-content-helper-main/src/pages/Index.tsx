@@ -11,9 +11,12 @@ import { toast } from "sonner";
 import { Book, Code, FileText, Globe, HelpCircle, Pencil, Youtube } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getVideoDetails } from '@/lib/api/youtube';
+import { useNavigate } from 'react-router-dom';
+import { AIModel } from '../lib/types/ai-models';
 
 
 const Index = () => {
+  const navigate = useNavigate();
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [response, setResponse] = useState<AIResponse>({
@@ -23,6 +26,19 @@ const Index = () => {
   });
 
   const tools: ToolProps[] = [
+    {
+   
+      id: "flashcards",
+      title: "Flashcards Inteligentes",
+      description: "Crie e estude com flashcards adaptáveis usando IA",
+      icon: "Brain",
+    },
+    {
+      id: "gestao-financeira",
+      title: "Gestão Financeira",
+      description: "Gerencie suas finanças pessoais e acadêmicas com facilidade",
+      icon: "DollarSign",
+    },
     {
       id: "debate-simulator",
       title: "Simulador de Debate",
@@ -47,13 +63,7 @@ const Index = () => {
       description: "Converte textos acadêmicos em áudio para facilitar o estudo",
       icon: "Headphones",
     },
-    {
-      id: "speech-trainer",
-      title: "Treinador de Oratória",
-      description: "Analisa sua fala e dá dicas para melhorar sua apresentação oral",
-      icon: "Mic",
-    },
-    {
+    { 
       id: "peer-review",
       title: "Simulador de Revisão por Pares",
       description: "Teste seu artigo como se estivesse passando por uma revisão acadêmica real",
@@ -84,17 +94,25 @@ const Index = () => {
       icon: "Calendar",
     },
     {
+      id: "gerador-imagem",
+      title: "Gerador de Imagem",
+      description: "Crie imagens personalizadas com inteligência artificial",
+      icon: "Image",
+    },
+    {
+      id: "gerador-video",
+      title: "Gerador de Vídeo",
+      description: "Produza vídeos profissionais automaticamente",
+      icon: "Video",
+    },
+    {
       id: "mind-map",
       title: "Mapa Mental AI",
       description: "Crie mapas mentais avançados com inteligência artificial",
       icon: "Brain",
     },
-    {
-      id: "mind-map-ai",
-      title: "Mapa Mental AI",
-      description: "Crie mapas mentais avançados com inteligência artificial",
-      icon: "BrainCircuit",
-    },
+    
+   
     {
       id: "assistant",
       title: "Assistente de Aprendizagem",
@@ -111,6 +129,12 @@ const Index = () => {
       id: "language",
       title: "Idioma",
       description: "Traduza textos e verifique a gramática",
+      icon: "Globe",
+    },
+    {
+      id: "language22",
+      title: "Idioma",
+      description: "Traduza textos e faça perguntas mais abertas e verifique a gramática",
       icon: "Globe",
     },
     {
@@ -167,6 +191,7 @@ const Index = () => {
       description: "Verificação avançada de originalidade e detecção de plágio",
       icon: "Shield",
     },
+  
     {
       id: "article-analysis",
       title: "Análise de Artigos",
@@ -212,31 +237,111 @@ const Index = () => {
   ];
 
   const handleToolSelect = (id: string) => {
-    if (id === "monitor-prazos") {
-      window.location.href = "/monitor-prazos";
-      return;
+    switch (id) {
+      case "language":
+        navigate("/idiomas");
+        break;
+      case "language2":
+        navigate("/idiomas");
+        break;
+      case "essay":
+        navigate("/assistente-escrita");
+        break;
+      case "essay-correction":
+        navigate("/corretor-redacoes");
+        break;
+      case "advanced-correction":
+        navigate("/corretor-avancado");
+        break;
+      case "correction":
+        navigate("/corretor");
+        break;
+      case "summarizer":
+        navigate("/biblioteca-conteudo");
+        break;
+      case "flashcards":
+        navigate("/flashcards");
+        break;
+      case "monitor-prazos":
+        navigate("/monitor-prazos");
+        break;
+      case "mind-map":
+        navigate("/mind-map");
+        break;
+      case "gestao-financeira":
+        navigate("/gestao-financeira");
+        break;
+      case "gerador-imagem":
+        navigate("/gerador-imagem");
+        break;
+      case "gerador-video":
+        navigate("/gerador-video");
+        break;
+      case "jogos":
+        navigate("/jogos");
+        break;
+      case "conhecimentos-gerais":
+        navigate("/jogos/conhecimentos-gerais");
+        break;
+      case "enem":
+        navigate("/enem");
+        break;
+      case "text-narrator":
+        navigate("/narrador-textos");
+        break;
+      case "plagiarism":
+        navigate("/analise-plagio");
+        break;
+      case "content-library":
+        navigate("/biblioteca-conteudo");
+        break;
+      case "language":
+        navigate("/idiomas");
+        break;
+      case "code":
+        navigate("/aprimorador-codigo");
+        break;
+      case "defense-simulator":
+        navigate("/simulador-defesa");
+        break;
+      case "peer-review":
+        navigate("/simulador-revisao-pares");
+        break;
+      case "youtube":
+        navigate("/resumo-youtube");
+        break;
+      case "research":
+        navigate("/assistente-pesquisa");
+        break;
+      case "academic-writing":
+        navigate("/assistente-escrita");
+        break;
+      case "article-analysis":
+        navigate("/analise-artigos");
+        break;
+      case "essay-generator":
+        navigate("/gerador-redacoes");
+        break;
+      case "bibliography-analyzer":
+        navigate("/analisador-bibliografia");
+        break;
+      case "methodology-assistant":
+        navigate("/assistente-metodologia");
+        break;
+      case "exercise-explainer":
+        navigate("/explicador-exercicios");
+        break;
+      default:
+        setSelectedTool(id);
+        setResponse({
+          content: "",
+          loading: false,
+          error: null,
+        });
     }
-    
-    if (id === "mind-map") {
-      window.location.href = "/mind-map";
-      return;
-    }
-    
-    // Add the new condition for deadline-monitor
-    if (id === "deadline-monitor") {
-      window.location.href = "/monitorprazos";
-      return;
-    }
-    
-    setSelectedTool(id);
-    setResponse({
-      content: "",
-      loading: false,
-      error: null,
-    });
   };
 
-  const handleSubmit = async (text: string, file?: File | null, youtubeUrl?: string) => {
+  const handleSubmit = async (text: string, model: AIModel, file?: File | null, youtubeUrl?: string) => {
     try {
       if (!selectedTool) {
         toast.error("Por favor, selecione uma ferramenta primeiro.");
@@ -537,7 +642,9 @@ const Index = () => {
                   {selectedTool && (
                     <InputArea
                       selectedTool={selectedTool}
-                      onSubmit={handleSubmit}
+                      onSubmit={(text, model, fileData, youtubeUrl) => {
+                        handleSubmit(text, model, fileData, youtubeUrl);
+                      }}
                     />
                   )}
                 </div>

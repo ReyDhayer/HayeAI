@@ -6,7 +6,7 @@ import { AIModel, AI_MODELS } from "@/lib/types/ai-models";
 
 interface InputAreaProps {
   selectedTool: string | null;
-  onSubmit: (text: string, fileData?: File | null, youtubeUrl?: string) => void;
+  onSubmit: (text: string, model: AIModel, fileData?: File | null, youtubeUrl?: string) => void;
 }
 
 const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
@@ -29,7 +29,7 @@ const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
     e.preventDefault();
     if ((!inputText && !file && !youtubeUrl) || !selectedTool) return;
     
-    onSubmit(inputText, file, youtubeUrl);
+    onSubmit(inputText, selectedModel, file, youtubeUrl);
     setInputText("");
     setFile(null);
     setYoutubeUrl("");

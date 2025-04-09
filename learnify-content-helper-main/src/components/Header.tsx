@@ -3,6 +3,14 @@ import React, { useState } from "react";
 import { useFadeIn } from "@/lib/animations";
 import { Settings } from "lucide-react";
 import SettingsMenu from "./SettingsMenu";
+import { Link } from "react-router-dom";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Header = () => {
   const fadeIn = useFadeIn(100);
@@ -72,12 +80,16 @@ const Header = () => {
               </a>
             </li>
             <li>
-              <a 
-                href="#" 
-                className="text-foreground/70 hover:text-foreground transition-colors relative after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
-              >
-                Ferramentas
-              </a>
+              <NavigationMenu>
+            
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger className="text-foreground/70 hover:text-foreground transition-colors relative after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left">
+                      Ferramentas
+                    </NavigationMenuTrigger>
+                  
+                  </NavigationMenuItem>
+            
+              </NavigationMenu>
             </li>
             <li>
               <a 
@@ -85,6 +97,14 @@ const Header = () => {
                 className="text-foreground/70 hover:text-foreground transition-colors relative after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
               >
                 Histórico
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/jogos" 
+                className="text-foreground/70 hover:text-foreground transition-colors relative after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
+              >
+                Jogos
               </a>
             </li>
           </ul>

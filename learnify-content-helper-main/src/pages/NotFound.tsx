@@ -1,7 +1,11 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
+import Header from '@/components/Header';
+import { useFadeIn } from '@/lib/animations';
 
 const NotFound = () => {
+  const fadeIn = useFadeIn(100);
   const location = useLocation();
 
   useEffect(() => {
@@ -12,14 +16,43 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 ${fadeIn}`}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center p-8 bg-white rounded-lg shadow-xl max-w-md w-full mx-4"
+        >
+          <motion.h1 
+          initial={{ scale: 0.5 }}
+          animate={{ scale: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 260,
+            damping: 20 
+          }}
+          className="text-6xl font-bold text-gray-800 mb-6"
+        >
+          404
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-xl text-gray-600 mb-8"
+        >
+          Oops! The page you're looking for doesn't exist.
+        </motion.p>
+        <Link 
+          to="/" 
+          className="inline-block px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
+        >
           Return to Home
-        </a>
-      </div>
+        </Link>
+      </motion.div>
+      </main>
     </div>
   );
 };

@@ -1,0 +1,1297 @@
+/* Estilos para a página de Flashcards */
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flipCard {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(66, 153, 225, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes floatCard {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(66, 153, 225, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(66, 153, 225, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(66, 153, 225, 0.5);
+  }
+}
+
+/* Estilos gerais da página */
+.flashcards-page {
+  animation: fadeIn 0.5s ease-in-out;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.flashcards-page h1 {
+  font-weight: 700;
+  background: linear-gradient(90deg, #4a6fa5 0%, #166bb3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Estilização dos cards */
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: slideInUp 0.4s ease-out;
+  border: none;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(22, 107, 179, 0.15);
+  animation: glow 2s infinite;
+}
+
+.card-header {
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-bottom: none;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.card-footer {
+  background-color: transparent;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0.8rem 1.2rem;
+}
+
+/* Estilização dos badges */
+.badge {
+  padding: 0.5em 0.8em;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilização dos botões */
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  letter-spacing: 0.5px;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4a6fa5 0%, #166bb3 100%);
+  border: none;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20883a 100%);
+  border: none;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  border: none;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+}
+
+/* Efeito de onda ao clicar nos botões */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn-ripple:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+/* Estilização do modo estudo */
+.flashcard-estudo {
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+.flashcard-estudo .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.flashcard-estudo h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(90deg, #166bb3 0%, #4a6fa5 50%, #166bb3 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.resposta-container {
+  background: rgba(248, 249, 250, 0.7);
+  border-radius: 16px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.5s ease-in-out;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Estilização das abas */
+.nav-tabs {
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 1.5rem;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  font-weight: 500;
+  color: #495057;
+  padding: 0.8rem 1.2rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #166bb3;
+}
+
+.nav-tabs .nav-link.active {
+  color: #166bb3;
+  background-color: transparent;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4a6fa5 0%, #166bb3 100%);
+  border-radius: 3px 3px 0 0;
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Estilização do progresso */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e9ecef;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #4a6fa5 0%, #166bb3 100%);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* Efeitos de flip card para o modo estudo */
+.flip-container {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+}
+
+.flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  perspective: 1000px;
+  height: 100%;
+}
+
+.flipper.flipped {
+  transform: rotateY(180deg);
+}
+
+.front, .back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+.front, .back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.9) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.front {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+.back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.flipped .flipper {
+  transform: rotateY(180deg);
+}
+
+/* Efeito de brilho nas bordas durante a transição */
+.flipper::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #166bb3, #90cdf4, #4a6fa5, #166bb3);
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: 22px;
+  animation: shimmer 3s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.flip-container:hover .flipper::before {
+  opacity: 1;
+}
+
+/* Efeitos de feedback */
+.feedback-success {
+  animation: pulse 1s;
+}
+
+.feedback-error {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% {transform: translateX(0);}
+  20%, 60% {transform: translateX(-10px);}
+  40%, 80% {transform: translateX(10px);}
+}
+
+/* Estilização para conquistas */
+.conquista-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.conquista-card.desbloqueada {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border: 1px solid rgba(144, 205, 244, 0.8);
+  box-shadow: 0 10px 25px rgba(22, 107, 179, 0.15);
+}
+
+.conquista-icone {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem auto;
+  background: linear-gradient(135deg, #4a6fa5 0%, #166bb3 100%);
+  color: white;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 20px rgba(22, 107, 179, 0.4);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.conquista-icone::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 3s linear infinite;
+  z-index: -1;
+}
+
+.conquista-card.desbloqueada .conquista-icone {
+  animation: pulse 2s infinite;
+}
+
+/* Efeitos de confete para conquistas */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #166bb3;
+  border-radius: 0;
+  animation: confetti 4s ease-in-out forwards;
+}
+
+.confetti.square {
+  border-radius: 0;
+}
+
+.confetti.circle {
+  border-radius: 50%;
+}
+
+.confetti.triangle {
+  width: 0;
+  height: 0;
+  background-color: transparent;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #166bb3;
+}
+
+/* Cores variadas para os confetes */
+.confetti:nth-child(3n) { background-color: #4a6fa5; }
+.confetti:nth-child(3n+1) { background-color: #90cdf4; }
+.confetti:nth-child(3n+2) { background-color: #ffc107; }
+.confetti:nth-child(5n) { background-color: #28a745; }
+.confetti:nth-child(7n) { background-color: #dc3545; }
+
+/* Efeito de partículas para feedback */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: rgba(22, 107, 179, 0.8);
+  border-radius: 50%;
+  animation: confetti 1s ease-out forwards;
+}
+
+/* Estilização para estatísticas */
+.estatisticas-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #1a365d 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.custom-progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+}
+
+.custom-progress .progress-bar {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.stat-card {
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-card {
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 10px 40px 0 rgba(31, 38, 135, 0.15);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon {
+  color: #166bb3;
+  background: linear-gradient(135deg, rgba(22, 107, 179, 0.15), rgba(22, 107, 179, 0.05));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 20px rgba(22, 107, 179, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0.5rem 0;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.chart-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nivel-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.custom-progress {
+  height: 12px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.custom-progress .progress-bar {
+  background: linear-gradient(90deg, #166bb3, #4a6fa5);
+  border-radius: 6px;
+  transition: width 1s ease-in-out;
+}
+
+.btn-voltar {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-voltar:hover {
+  background: #f8f9fa;
+  transform: translateX(-5px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.estatisticas-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.voltar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.voltar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(22, 107, 179, 0.25);
+  background: linear-gradient(135deg, #4a6fa5, #166bb3);
+}
+
+.voltar-btn:active {
+  transform: translateY(1px);
+}
+
+/* Efeito de carregamento */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  height: 20px;
+  margin-bottom: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .flashcard-estudo h3 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .flashcard-estudo {
+    min-height: 350px;
+    margin: 0 1rem;
+  }
+  
+  .conquista-icone {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .flashcards-page h1 {
+    font-size: 1.8rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .flashcard-estudo {
+    min-height: 300px;
+  }
+  
+  .flashcard-estudo h3 {
+    font-size: 1.3rem;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Melhorias para dispositivos de toque */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+}
+
+
+/* Estilização dos cards de modo de estudo */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+}
+
+.feature-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Animação suave para os botões */
+.rounded-pill {
+  transition: all 0.3s ease;
+}
+
+.rounded-pill:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rounded-pill:active {
+  transform: scale(0.95);
+}
+
+.flipper::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #166bb3, #90cdf4, #4a6fa5, #166bb3);
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: 22px;
+  animation: shimmer 3s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.flip-container:hover .flipper::before {
+  opacity: 1;
+}
+
+/* Efeitos de feedback */
+.feedback-success {
+  animation: pulse 1s;
+}
+
+.feedback-error {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% {transform: translateX(0);}
+  20%, 60% {transform: translateX(-10px);}
+  40%, 80% {transform: translateX(10px);}
+}
+
+/* Estilização para conquistas */
+.conquista-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.conquista-card.desbloqueada {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border: 1px solid rgba(144, 205, 244, 0.8);
+  box-shadow: 0 10px 25px rgba(22, 107, 179, 0.15);
+}
+
+.conquista-icone {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem auto;
+  background: linear-gradient(135deg, #4a6fa5 0%, #166bb3 100%);
+  color: white;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 20px rgba(22, 107, 179, 0.4);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.conquista-icone::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 3s linear infinite;
+  z-index: -1;
+}
+
+.conquista-card.desbloqueada .conquista-icone {
+  animation: pulse 2s infinite;
+}
+
+/* Efeitos de confete para conquistas */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #166bb3;
+  border-radius: 0;
+  animation: confetti 4s ease-in-out forwards;
+}
+
+.confetti.square {
+  border-radius: 0;
+}
+
+.confetti.circle {
+  border-radius: 50%;
+}
+
+.confetti.triangle {
+  width: 0;
+  height: 0;
+  background-color: transparent;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #166bb3;
+}
+
+/* Cores variadas para os confetes */
+.confetti:nth-child(3n) { background-color: #4a6fa5; }
+.confetti:nth-child(3n+1) { background-color: #90cdf4; }
+.confetti:nth-child(3n+2) { background-color: #ffc107; }
+.confetti:nth-child(5n) { background-color: #28a745; }
+.confetti:nth-child(7n) { background-color: #dc3545; }
+
+/* Efeito de partículas para feedback */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: rgba(22, 107, 179, 0.8);
+  border-radius: 50%;
+  animation: confetti 1s ease-out forwards;
+}
+
+/* Estilização para estatísticas */
+.estatisticas-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #1a365d 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.custom-progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+}
+
+.custom-progress .progress-bar {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.stat-card {
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-card {
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 10px 40px 0 rgba(31, 38, 135, 0.15);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon {
+  color: #166bb3;
+  background: linear-gradient(135deg, rgba(22, 107, 179, 0.15), rgba(22, 107, 179, 0.05));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 20px rgba(22, 107, 179, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0.5rem 0;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.chart-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nivel-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.custom-progress {
+  height: 12px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.custom-progress .progress-bar {
+  background: linear-gradient(90deg, #166bb3, #4a6fa5);
+  border-radius: 6px;
+  transition: width 1s ease-in-out;
+}
+
+.btn-voltar {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-voltar:hover {
+  background: #f8f9fa;
+  transform: translateX(-5px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.estatisticas-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.voltar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #166bb3, #4a6fa5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.voltar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(22, 107, 179, 0.25);
+  background: linear-gradient(135deg, #4a6fa5, #166bb3);
+}
+
+.voltar-btn:active {
+  transform: translateY(1px);
+}
+
+/* Efeito de carregamento */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  height: 20px;
+  margin-bottom: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .flashcard-estudo h3 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .flashcard-estudo {
+    min-height: 350px;
+    margin: 0 1rem;
+  }
+  
+  .conquista-icone {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .flashcards-page h1 {
+    font-size: 1.8rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .flashcard-estudo {
+    min-height: 300px;
+  }
+  
+  .flashcard-estudo h3 {
+    font-size: 1.3rem;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Melhorias para dispositivos de toque */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+}
