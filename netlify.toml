@@ -1,5 +1,5 @@
 [build]
-  command = "cd learnify-content-helper-main && npm install --legacy-peer-deps --force && npm run build"
+  command = "cd learnify-content-helper-main && npm install && npm run build"
   publish = "learnify-content-helper-main/dist"
   base = "."
 
