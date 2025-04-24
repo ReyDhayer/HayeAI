@@ -85,42 +85,10 @@ const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
               <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowModelSelector(!showModelSelector)}
-                  className="flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <span>{selectedModel.icon}</span>
-                  <ChevronDown size={16} />
-                </button>
-                {showModelSelector && (
-                  <div className="absolute bottom-full right-0 mb-2 bg-background border rounded-lg shadow-lg py-1 min-w-[120px]">
-                    {AI_MODELS.map((model) => (
-                      <button
-                        key={model.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedModel(model);
-                          setShowModelSelector(false);
-                        }}
-                        className="flex items-center space-x-2 w-full px-3 py-2 hover:bg-accent transition-colors"
-                      >
-                        <span>{model.icon}</span>
-                        <span>{model.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+               
+                
               </div>
-              <label className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-                <Paperclip size={20} />
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept="image/*,.pdf,.docx,.txt"
-                />
-              </label>
+          
               {selectedTool === "youtube" && (
                 <button
                   type="button"
@@ -130,12 +98,7 @@ const InputArea: React.FC<InputAreaProps> = ({ selectedTool, onSubmit }) => {
                   <Youtube size={20} />
                 </button>
               )}
-              <button
-                type="button"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Mic size={20} />
-              </button>
+              
             </div>
           </div>
           <button

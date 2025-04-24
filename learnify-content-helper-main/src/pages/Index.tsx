@@ -93,18 +93,7 @@ const Index = () => {
       description: "Acompanhe prazos de submissões e entregas acadêmicas",
       icon: "Calendar",
     },
-    {
-      id: "gerador-imagem",
-      title: "Gerador de Imagem",
-      description: "Crie imagens personalizadas com inteligência artificial",
-      icon: "Image",
-    },
-    {
-      id: "gerador-video",
-      title: "Gerador de Vídeo",
-      description: "Produza vídeos profissionais automaticamente",
-      icon: "Video",
-    },
+  
     {
       id: "mind-map",
       title: "Mapa Mental AI",
@@ -138,7 +127,7 @@ const Index = () => {
       icon: "Globe",
     },
     {
-      id: "essay",
+      id: "ajudante-de-ensaios",
       title: "Ajudante de Ensaios",
       description: "Aprimore e parafraseie seus textos acadêmicos",
       icon: "FileText",
@@ -150,7 +139,7 @@ const Index = () => {
       icon: "ClipboardCheck",
     },
     {
-      id: "summarizer",
+      id: "resumidor",
       title: "Resumidor",
       description: "Resuma textos, livros e extraia palavras-chave",
       icon: "Book",
@@ -161,12 +150,7 @@ const Index = () => {
       description: "Melhore, otimize e corrija seu código",
       icon: "Code",
     },
-    {
-      id: "youtube",
-      title: "Resumo do YouTube",
-      description: "Obtenha resumos de vídeos do YouTube",
-      icon: "Youtube",
-    },
+  
     {
       id: "research",
       title: "Assistente de Pesquisa Acadêmica",
@@ -198,12 +182,8 @@ const Index = () => {
       description: "Análise detalhada de artigos científicos e extração de insights",
       icon: "FileSearch",
     },
-    {
-      id: "content-library",
-      title: "Biblioteca de Conteúdo",
-      description: "Acesso ilimitado a recursos acadêmicos e materiais de referência",
-      icon: "Library",
-    },
+    
+    
     {
       id: "advanced-correction",
       title: "Corretor Avançado",
@@ -303,6 +283,9 @@ const Index = () => {
         break;
       case "defense-simulator":
         navigate("/simulador-defesa");
+        break;
+      case "debate-simulator":
+        navigate("/simulador-debate");
         break;
       case "peer-review":
         navigate("/simulador-revisao-pares");
@@ -675,4 +658,5 @@ const Home: React.FC = () => {
   );
 };
 
+// Remove duplicate default export since Index is already exported
 // Remove duplicate default export since Index is already exported

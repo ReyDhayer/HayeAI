@@ -6,6 +6,10 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/Header';
 import { useFadeIn } from '@/lib/animations';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Inicializar a API Gemini
+const genAI = new GoogleGenerativeAI('AIzaSyBJdcax0rOhfbjVpHlDKutHbezIFLN4DDQ');
 
 interface Reference {
   id: number;
@@ -23,36 +27,101 @@ const AnalisadorBibliografia: React.FC = () => {
   const [citationStyle, setCitationStyle] = useState('abnt');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzedReferences, setAnalyzedReferences] = useState<Reference[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const analyzeReferencesMock = async () => {
+  const analyzeReferences = async () => {
     if (!references.trim()) return;
 
     setIsAnalyzing(true);
-    // Simulação de análise - será substituída por integração com IA
-    setTimeout(() => {
-      const mockReferences: Reference[] = [
-        {
-          id: 1,
-          type: 'book',
-          authors: ['SILVA, João', 'SANTOS, Maria'],
-          title: 'Metodologia da Pesquisa Científica',
-          year: '2023',
-          source: 'Editora Acadêmica',
-          formattedReference: 'SILVA, João; SANTOS, Maria. Metodologia da Pesquisa Científica. São Paulo: Editora Acadêmica, 2023.'
+    setError(null);
+    
+    try {
+      // Configurar o modelo
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-pro",
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 40,
         },
-        {
-          id: 2,
-          type: 'article',
-          authors: ['OLIVEIRA, Ana Paula'],
-          title: 'Inovações em Educação Digital',
-          year: '2022',
-          source: 'Revista Brasileira de Educação, v. 27, n. 1, p. 45-62',
-          formattedReference: 'OLIVEIRA, Ana Paula. Inovações em Educação Digital. Revista Brasileira de Educação, v. 27, n. 1, p. 45-62, 2022.'
-        }
-      ];
-      setAnalyzedReferences(mockReferences);
+      });
+
+      // Construir o prompt
+      const prompt = `
+      Analise as seguintes referências bibliográficas e formate-as corretamente de acordo com o estilo de citação ${citationStyle.toUpperCase()}.
+      Para cada referência, identifique:
+      1. Tipo (livro, artigo, tese, site, etc.)
+      2. Autores
+      3. Título
+      4. Ano
+      5. Fonte (editora, revista, universidade, etc.)
+      6. Referência formatada completa no estilo ${citationStyle.toUpperCase()}
+
+      Retorne os resultados em formato JSON com a seguinte estrutura:
+      {
+        "references": [
+          {
+            "type": "string",
+            "authors": ["string"],
+            "title": "string",
+            "year": "string",
+            "source": "string",
+            "formattedReference": "string"
+          }
+        ]
+      }
+
+      Referências a serem analisadas:
+      ${references}
+      `;
+
+      console.log("Enviando prompt para a API Gemini:", prompt);
+      
+      // Fazer a chamada para a API
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      console.log("Resposta da API Gemini:", text);
+
+      // Extrair o JSON da resposta
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        text.match(/{[\s\S]*?}/);
+                        
+      let jsonStr = '';
+      
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1] || jsonMatch[0];
+      } else {
+        jsonStr = text;
+      }
+
+      // Parsear o JSON
+      const data = JSON.parse(jsonStr);
+      
+      if (!data.references || !Array.isArray(data.references)) {
+        throw new Error("Formato de resposta inválido");
+      }
+
+      // Mapear os resultados para o formato esperado
+      const formattedReferences: Reference[] = data.references.map((ref: any, index: number) => ({
+        id: index + 1,
+        type: ref.type || "desconhecido",
+        authors: Array.isArray(ref.authors) ? ref.authors : [ref.authors || "Autor desconhecido"],
+        title: ref.title || "Título desconhecido",
+        year: ref.year || "Ano desconhecido",
+        source: ref.source || "Fonte desconhecida",
+        formattedReference: ref.formattedReference || "Referência não formatada"
+      }));
+
+      setAnalyzedReferences(formattedReferences);
+    } catch (err) {
+      console.error("Erro ao analisar referências:", err);
+      setError("Ocorreu um erro ao analisar as referências. Por favor, tente novamente.");
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -90,7 +159,7 @@ const AnalisadorBibliografia: React.FC = () => {
               </div>
 
               <Button
-                onClick={analyzeReferencesMock}
+                onClick={analyzeReferences}
                 disabled={!references.trim() || isAnalyzing}
                 className="w-full"
               >
@@ -98,6 +167,12 @@ const AnalisadorBibliografia: React.FC = () => {
               </Button>
             </div>
           </Card>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
+            </div>
+          )}
 
           {analyzedReferences.length > 0 && (
             <Card className="p-6">

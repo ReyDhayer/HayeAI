@@ -20,6 +20,8 @@ export default {
 		},
 		extend: {
 			colors: {
+				'hayeai-indigo': '#6366F1',
+				'hayeai-pink': '#E16EDD',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

@@ -105,21 +105,7 @@ const AnaliseArtigos: React.FC = () => {
               onChange={(e) => setArticle(e.target.value)}
               className="min-h-[300px] mb-4"
             />
-            <FileUpload
-              onFileChange={(files) => {
-                if (files && files[0]) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    if (e.target?.result) {
-                      setArticle(e.target.result as string);
-                    }
-                  };
-                  reader.readAsText(files[0]);
-                }
-              }}
-              label="Ou envie um arquivo"
-              accept=".doc,.docx,.pdf,.txt,.jpg,.jpeg,.png"
-            />
+           
             <Button
               onClick={analyzeArticleMock}
               disabled={!article.trim() || isAnalyzing}

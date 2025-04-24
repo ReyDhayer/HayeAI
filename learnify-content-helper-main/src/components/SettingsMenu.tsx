@@ -124,19 +124,20 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
             </h3>
             <div className="space-y-4">
               <div className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
                   <input
                     type="text"
                     placeholder="Digite o código promocional"
-                    className="flex-1 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-2 transition-all"
+                    className="w-full sm:flex-1 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-2 transition-all"
                     onChange={(e) => {
                       const code = e.target.value.toUpperCase();
                       const isValidFormat = /^[A-Z0-9]{4,12}$/.test(code);
-                      e.target.className = `flex-1 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-2 transition-all ${isValidFormat ? 'border-2 border-green-500' : code.length > 0 ? 'border-2 border-red-500' : ''}`;
+                      e.target.className = `w-full sm:flex-1 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-2 transition-all ${isValidFormat ? 'border-2 border-green-500' : code.length > 0 ? 'border-2 border-red-500' : ''}`;
                     }}
                   />
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2 sm:mt-0"
+                    style={{ minWidth: 120, maxWidth: 200 }}
                     onClick={() => {
                       const input = document.querySelector('input[type="text"]') as HTMLInputElement;
                       const code = input.value.toUpperCase();
@@ -239,35 +240,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
                   placeholder="seu@email.com"
                 />
               </div>
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Nível {settings.accountSettings.level}</span>
-                    {settings.accountSettings.premium && (
-                      <span className="px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-xs font-medium rounded-full">Premium</span>
-                    )}
-                  </div>
-                  <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">{settings.accountSettings.points} pontos</span>
-                </div>
-                <div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className="absolute inset-0 bg-blue-500 rounded-full transition-all duration-300 ease-out transform origin-left"
-                    style={{
-                      width: `${(settings.accountSettings.points % 100)}%`,
-                      animation: 'progress-pulse 2s ease-in-out infinite'
-                    }}
-                  />
-                  <style>{`
-                    @keyframes progress-pulse {
-                      0%, 100% { opacity: 1; }
-                      50% { opacity: 0.7; }
-                    }
-                  `}</style>
-                </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  {100 - (settings.accountSettings.points % 100)} pontos para o próximo nível
-                </p>
-              </div>
+             
+               
+                
+          
             </div>
           </div>
 

@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/Header';
 import { useFadeIn } from '@/lib/animations';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface GeneratedEssay {
   title: string;
@@ -25,45 +26,137 @@ const GeradorRedacoes: React.FC = () => {
   const [wordCount, setWordCount] = useState('500');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedEssay, setGeneratedEssay] = useState<GeneratedEssay | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const generateEssayMock = async () => {
+  const generateEssay = async () => {
     if (!topic.trim()) return;
 
     setIsGenerating(true);
-    // Simulação de geração - será substituída por integração com IA
-    setTimeout(() => {
-      const mockEssay: GeneratedEssay = {
-        title: 'O Impacto da Tecnologia na Educação Moderna',
-        content: `A revolução tecnológica tem transformado significativamente o cenário educacional nas últimas décadas. Com o advento da internet e das ferramentas digitais, o processo de ensino-aprendizagem passou por mudanças substanciais, oferecendo novas possibilidades e desafios para educadores e estudantes.
+    setError(null);
+    
+    try {
+      // Usar a chave API fornecida diretamente
+      const apiKey = "AIzaSyBJdcax0rOhfbjVpHlDKutHbezIFLN4DDQ";
+      
+      console.log('Iniciando geração de redação com a chave API fornecida');
+      
+      // Inicializa a API do Google Generative AI com a chave API
+      const genAI = new GoogleGenerativeAI(apiKey);
+      
+      // Configura o modelo com parâmetros específicos
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-pro",
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.9,
+          topK: 40,
+          maxOutputTokens: 4096,
+        }
+      });
 
-Primeiramente, é importante destacar como a tecnologia tem democratizado o acesso ao conhecimento. Plataformas de educação online, bibliotecas digitais e recursos educacionais abertos permitem que estudantes de diferentes regiões tenham acesso a conteúdos de qualidade. Além disso, a personalização do aprendizado tornou-se uma realidade, com sistemas adaptativos que identificam as necessidades individuais de cada aluno.
+      console.log('Modelo configurado, preparando prompt...');
 
-Contudo, é necessário considerar também os desafios dessa transformação. A exclusão digital ainda é uma realidade em muitas regiões, criando disparidades no acesso à educação. Ademais, a dependência excessiva da tecnologia pode impactar negativamente o desenvolvimento de habilidades sociais e práticas fundamentais.
+      // Determina o tipo de redação em português
+      let essayTypeText = "";
+      switch(essayType) {
+        case 'dissertativo':
+          essayTypeText = "dissertativo-argumentativo";
+          break;
+        case 'narrativo':
+          essayTypeText = "narrativo";
+          break;
+        case 'descritivo':
+          essayTypeText = "descritivo";
+          break;
+        case 'enem':
+          essayTypeText = "no estilo ENEM (dissertativo-argumentativo com proposta de intervenção)";
+          break;
+        case 'personalizado':
+          essayTypeText = `personalizado com os seguintes requisitos: ${customRequirements}`;
+          break;
+        default:
+          essayTypeText = "dissertativo-argumentativo";
+      }
 
-Portanto, é fundamental buscar um equilíbrio na integração da tecnologia na educação, garantindo que ela seja uma ferramenta de apoio ao processo pedagógico, e não um fim em si mesma. O futuro da educação dependerá da nossa capacidade de aproveitar os benefícios da tecnologia enquanto preservamos os aspectos essenciais do desenvolvimento humano.`,
-        outline: [
-          'Introdução: Contextualização da revolução tecnológica na educação',
-          'Democratização do acesso ao conhecimento',
-          'Personalização do aprendizado',
-          'Desafios e limitações',
-          'Conclusão: Importância do equilíbrio na integração tecnológica'
-        ],
-        references: [
-          'SILVA, M. Educação na Era Digital, 2023',
-          'SANTOS, P. Tecnologia e Aprendizagem, 2022',
-          'OLIVEIRA, R. Desafios da Educação Contemporânea, 2023'
-        ],
-        keywords: [
-          'tecnologia educacional',
-          'ensino-aprendizagem',
-          'educação digital',
-          'inclusão digital',
-          'inovação pedagógica'
-        ]
-      };
-      setGeneratedEssay(mockEssay);
+      // Prepara o prompt para geração da redação
+      const prompt = `Gere uma redação completa sobre o tema "${topic}" no formato ${essayTypeText} com aproximadamente ${wordCount} palavras.
+
+IMPORTANTE: Sua resposta DEVE ser um objeto JSON válido seguindo EXATAMENTE este formato:
+{
+  "title": "Título da redação",
+  "content": "Texto completo da redação, com parágrafos separados por quebras de linha",
+  "outline": ["Tópico 1: Introdução", "Tópico 2: Desenvolvimento", "Tópico 3: Conclusão"],
+  "references": ["Referência 1", "Referência 2", "Referência 3"],
+  "keywords": ["palavra-chave1", "palavra-chave2", "palavra-chave3", "palavra-chave4", "palavra-chave5"]
+}
+
+Instruções específicas:
+1. A redação deve ser original, bem estruturada e coerente
+2. Inclua pelo menos 4 parágrafos bem desenvolvidos
+3. O título deve ser criativo e relacionado ao tema
+4. A estrutura (outline) deve ter pelo menos 5 tópicos detalhados
+5. Inclua pelo menos 3 referências bibliográficas fictícias mas plausíveis
+6. Inclua pelo menos 5 palavras-chave relevantes para o tema
+
+Lembre-se: Mantenha o formato JSON válido e evite incluir qualquer texto fora da estrutura do objeto.`;
+
+      console.log('Enviando requisição para a API...');
+      
+      try {
+        // Faz a chamada para a API
+        const result = await model.generateContent(prompt);
+        console.log('Resposta recebida da API');
+        const response = await result.response;
+        const text = response.text();
+        console.log('Texto da resposta recebido');
+
+        if (!text) {
+          throw new Error('Resposta da API está vazia');
+        }
+        
+        // Tenta extrair JSON da resposta
+        try {
+          // Procura por um objeto JSON válido na resposta
+          const jsonMatch = text.match(/\{[\s\S]*\}/)?.[0];
+          if (!jsonMatch) {
+            console.error('Texto completo da resposta:', text);
+            throw new Error('Não foi possível encontrar um objeto JSON válido na resposta');
+          }
+          
+          // Remove quebras de linha e espaços extras antes de fazer o parse
+          const cleanedJson = jsonMatch.replace(/\s+/g, ' ').trim();
+          console.log('JSON limpo:', cleanedJson.substring(0, 100) + '...');
+          
+          const parsedEssay = JSON.parse(cleanedJson);
+          
+          // Valida a estrutura do objeto
+          if (!parsedEssay.title || !parsedEssay.content || 
+              !Array.isArray(parsedEssay.outline) || 
+              !Array.isArray(parsedEssay.references) || 
+              !Array.isArray(parsedEssay.keywords)) {
+            console.error('Estrutura de resposta inválida:', parsedEssay);
+            throw new Error('A resposta da API não contém todos os campos necessários');
+          }
+
+          // Formata o conteúdo para exibir quebras de linha corretamente
+          parsedEssay.content = parsedEssay.content.replace(/\\n/g, '\n');
+          
+          setGeneratedEssay(parsedEssay);
+        } catch (parseError) {
+          console.error('Erro ao processar resposta da API:', parseError);
+          throw new Error('Formato de resposta inválido. Por favor, tente novamente.');
+        }
+      } catch (apiError) {
+        console.error('Erro na chamada da API:', apiError);
+        throw new Error(`Erro na chamada da API: ${apiError.message || 'Erro desconhecido'}`);
+      }
+    } catch (error) {
+      console.error('Erro ao gerar redação:', error);
+      setError(error.message || 'Ocorreu um erro desconhecido ao gerar a redação');
+      setGeneratedEssay(null);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -140,7 +233,7 @@ Portanto, é fundamental buscar um equilíbrio na integração da tecnologia na 
               </div>
 
               <Button
-                onClick={generateEssayMock}
+                onClick={generateEssay}
                 disabled={!topic.trim() || isGenerating}
                 className="w-full"
               >
@@ -148,6 +241,14 @@ Portanto, é fundamental buscar um equilíbrio na integração da tecnologia na 
               </Button>
             </div>
           </Card>
+
+          {error && (
+            <Card className="p-6 mb-8 border-red-500">
+              <div className="text-red-500 font-medium">
+                Erro: {error}
+              </div>
+            </Card>
+          )}
 
           {generatedEssay && (
             <Card className="p-6">
@@ -194,17 +295,6 @@ Portanto, é fundamental buscar um equilíbrio na integração da tecnologia na 
                     </ul>
                   </div>
                 </div>
-                {showCustomRequirements && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-2">Requisitos Personalizados</label>
-                    <Textarea
-                      placeholder="Descreva seus requisitos específicos para a redação (estilo, critérios, abordagem, etc.)..."
-                      value={customRequirements}
-                      onChange={(e) => setCustomRequirements(e.target.value)}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                )}
               </div>
             </Card>
           )}

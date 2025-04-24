@@ -206,8 +206,8 @@ const AIVideoGenerator = () => {
   const handleShare = async (video) => {
     try {
       await navigator.share({
-        title: 'Vídeo Gerado por IA - ImaginAI',
-        text: `Vídeo criado com ImaginAI: ${video.prompt}`,
+        title: 'Vídeo Gerado por IA - HayeAI',
+        text: `Vídeo criado com HayeAI: ${video.prompt}`,
         url: video.url
       });
       toast.success('Vídeo compartilhado com sucesso', {
@@ -274,7 +274,7 @@ const AIVideoGenerator = () => {
             className={`fixed top-0 left-0 h-full w-72 z-50 ${darkMode ? 'bg-indigo-950/90' : 'bg-white/90'} backdrop-blur-xl shadow-xl border-r ${darkMode ? 'border-indigo-500/20' : 'border-indigo-200'}`}
           >
             <div className="p-4 flex justify-between items-center border-b border-indigo-500/20">
-              <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-indigo-950'}`}>ImaginAI</h2>
+              <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-indigo-950'}`}>HayeAI</h2>
               <button 
                 onClick={() => setShowSidebar(false)}
                 className={`p-2 rounded-full ${darkMode ? 'hover:bg-indigo-800/50' : 'hover:bg-indigo-100'} transition-all`}
@@ -312,19 +312,7 @@ const AIVideoGenerator = () => {
                   Configurações
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Modo Escuro</span>
-                    <button 
-                      onClick={toggleDarkMode}
-                      className={`w-12 h-6 rounded-full relative ${darkMode ? 'bg-indigo-600' : 'bg-gray-300'} transition-all duration-300`}
-                    >
-                      <motion.div 
-                        className="absolute top-1 w-4 h-4 rounded-full bg-white"
-                        animate={{ left: darkMode ? '1.75rem' : '0.25rem' }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      />
-                    </button>
-                  </div>
+               
                   
                   <div className="flex items-center justify-between">
                     <span className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Áudio</span>

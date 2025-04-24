@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script>
+    // Redirecionar para /src/pages/inicio.html se a página for acessada como /
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+      window.location.replace('/src/pages/inicio.html');
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HayeAI</title>
+  <link rel="icon" type="image/svg+xml" href="../../public/favicon-ai.svg">
+  <link rel="alternate icon" type="image/x-icon" href="../../public/favicon.ico">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- IMPORTANTE: Troque o CLIENT_ID abaixo pelo seu do Google Cloud Console! -->
+  <script>
+    window.onload = function() {
+      if (document.getElementById('g_id_signin')) {
+        google.accounts.id.initialize({
+          client_id: 'SEU_CLIENT_ID_DO_GOOGLE_AQUI', // TROQUE PELO SEU CLIENT_ID
+          callback: handleGoogleLogin
+        });
+        google.accounts.id.renderButton(
+          document.getElementById('g_id_signin'),
+          { theme: 'outline', size: 'large', width: 300 }
+        );
+      }
+    };
+  </script>
 
 <style>
     :root {
@@ -1732,7 +1758,7 @@
         <h2 class="section-title">Como o <span>HayeAI</span> Funciona</h2>
         <p class="section-description">Nossa plataforma foi desenvolvida para tornar seu aprendizado mais eficiente e produtivo, com ferramentas inteligentes que se adaptam ao seu ritmo.</p>
       </div>
-        HayeAI
+        
       <div class="steps">
         <div class="step-card">
           <div class="step-number">1</div>
@@ -1812,7 +1838,7 @@
               </div>
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
-                <span>Gerador de Redações (5/mês)</span>
+                <span>Gerador de Redações </span>
               </div>
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
@@ -1828,7 +1854,7 @@
               </div>
               <div class="pricing-feature unavailable">
                 <i class="fas fa-times"></i>
-                <span>Resumo do YouTube</span>
+                <span>Análise de Escrita</span>
               </div>
             </div>
             <div class="pricing-action">
@@ -1839,8 +1865,8 @@
         
         <div class="pricing-card popular">
           <div class="pricing-header">
-            <h3 class="pricing-title">Pro</h3>
-            <div class="pricing-amount" id="pro-price">R$99<small>/mês</small></div>
+            <h3 class="pricing-title">Intermediário</h3>
+            <div class="pricing-amount" id="pro-price">R$49<small>/mês</small></div>
             <div class="pricing-period" id="pro-period">Ideal para estudantes avançados</div>
           </div>
           <div class="pricing-content">
@@ -1850,7 +1876,9 @@
               <div class="pricing-feature"><i class="fas fa-check"></i><span>Corretor Avançado de Trabalhos</span></div>
               <div class="pricing-feature"><i class="fas fa-check"></i><span>Biblioteca de Conteúdo Ilimitada</span></div>
               <div class="pricing-feature"><i class="fas fa-check"></i><span>Gerador de Citações Avançado</span></div>
-              <div class="pricing-feature"><i class="fas fa-check"></i><span>Análise de Plágio</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Corretor de Redações</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Gerador de Redações</span></div>
+              <div class="pricing-feature"><i class="fas fa-check"></i><span>Mapa Mental AI</span></div>
               <div class="pricing-feature"><i class="fas fa-check"></i><span>Suporte Premium 24/7</span></div>
             </div>
             <div class="pricing-action">
@@ -1870,7 +1898,7 @@
             <div class="pricing-features">
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
-                <span>Todas as funcionalidades do Plano Técnico</span>
+                <span>Todas as funcionalidades do Plano Intermediário</span>
               </div>
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
@@ -1883,6 +1911,27 @@
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
                 <span>Análise de Artigos Científicos</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Monitor de Prazos</span>
+              </div>
+
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Simulador de Defesa</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Gestão Financeira</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span>Assistente de Metodologia</span>
+              </div>
+              <div class="pricing-feature">
+                <i class="fas fa-check"></i>
+                <span><b>Análise de Plágio (avançada e ilimitada)</b></span>
               </div>
               <div class="pricing-feature">
                 <i class="fas fa-check"></i>
@@ -2166,10 +2215,250 @@
           </div>
           <div class="form-check">
             <input type="checkbox" id="terms" name="terms">
-            <label for="terms">Eu concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a></label>
+            <label for="terms">Eu concordo com os <a href="#" id="openTerms">Termos de Serviço</a> e <a href="#" id="openPrivacy">Política de Privacidade</a></label>
           </div>
           <button type="submit" class="form-submit">Criar Conta</button>
         </form>
+
+        <!-- Modais Bonitos e Animados -->
+        <div id="modalOverlay" class="custom-modal-overlay"></div>
+        <!-- Modal Termos de Serviço -->
+        <div id="modalTerms" class="custom-modal animated-modal" tabindex="-1" aria-modal="true" role="dialog" aria-labelledby="termsTitle" aria-hidden="true">
+          <div class="custom-modal-content">
+            <button class="close-modal" id="closeTerms" aria-label="Fechar Termos de Serviço">&times;</button>
+            <div class="modal-icon"><svg width="48" height="48" fill="none" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#4F8CFF"/><path d="M15 21h18M15 27h18M19 33h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <h2 id="termsTitle">Termos de Serviço</h2>
+            <p><strong>Última atualização:</strong> 20 de abril de 2025</p>
+            <p>Bem-vindo ao <b>Learnify</b>! Ao acessar ou utilizar nossos serviços, você concorda com estes Termos de Serviço. Leia atentamente antes de utilizar a plataforma.</p>
+            <div class="modal-section">
+              <h3>1. Aceitação dos Termos</h3>
+              <p>Ao utilizar o Learnify, você concorda em cumprir estes Termos de Serviço e todas as leis e regulamentos aplicáveis.</p>
+            </div>
+            <div class="modal-section">
+              <h3>2. Uso da Plataforma</h3>
+              <ul>
+                <li>O Learnify destina-se a fins educacionais.</li>
+                <li>Não é permitido utilizar o serviço para fins ilícitos ou não autorizados.</li>
+                <li>Você é responsável por manter a confidencialidade de suas credenciais de acesso.</li>
+              </ul>
+            </div>
+            <div class="modal-section">
+              <h3>3. Propriedade Intelectual</h3>
+              <p>Todo o conteúdo disponibilizado na plataforma, incluindo textos, imagens e recursos interativos, é protegido por direitos autorais e não pode ser reproduzido sem autorização.</p>
+            </div>
+            <div class="modal-section">
+              <h3>4. Limitação de Responsabilidade</h3>
+              <p>O Learnify não se responsabiliza por eventuais danos decorrentes do uso da plataforma ou de informações fornecidas por terceiros.</p>
+            </div>
+            <div class="modal-section">
+              <h3>5. Modificações dos Termos</h3>
+              <p>Reservamo-nos o direito de modificar estes Termos a qualquer momento. As alterações serão comunicadas na plataforma.</p>
+            </div>
+            <div class="modal-section">
+              <h3>6. Contato</h3>
+              <p>Em caso de dúvidas, entre em contato pelo e-mail: <a href="mailto:suporte@learnify.com">suporte@learnify.com</a></p>
+            </div>
+          </div>
+        </div>
+        <!-- Modal Política de Privacidade -->
+        <div id="modalPrivacy" class="custom-modal animated-modal" tabindex="-1" aria-modal="true" role="dialog" aria-labelledby="privacyTitle" aria-hidden="true">
+          <div class="custom-modal-content">
+            <button class="close-modal" id="closePrivacy" aria-label="Fechar Política de Privacidade">&times;</button>
+            <div class="modal-icon"><svg width="48" height="48" fill="none" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#7DD87D"/><path d="M24 14a10 10 0 0 1 10 10c0 8-10 14-10 14S14 32 14 24a10 10 0 0 1 10-10Zm0 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" fill="#fff"/></svg></div>
+            <h2 id="privacyTitle">Política de Privacidade</h2>
+            <p><strong>Última atualização:</strong> 20 de abril de 2025</p>
+            <p>Sua privacidade é importante para nós. Esta Política de Privacidade explica como coletamos, usamos e protegemos suas informações.</p>
+            <div class="modal-section">
+              <h3>1. Informações Coletadas</h3>
+              <ul>
+                <li>Dados fornecidos por você: nome, e-mail, informações de cadastro.</li>
+                <li>Dados de uso: informações sobre como você utiliza a plataforma.</li>
+              </ul>
+            </div>
+            <div class="modal-section">
+              <h3>2. Uso das Informações</h3>
+              <p>As informações coletadas são utilizadas para:</p>
+              <ul>
+                <li>Oferecer e melhorar nossos serviços</li>
+                <li>Comunicar novidades e atualizações</li>
+                <li>Garantir a segurança da plataforma</li>
+              </ul>
+            </div>
+            <div class="modal-section">
+              <h3>3. Compartilhamento de Dados</h3>
+              <p>Não compartilhamos seus dados pessoais com terceiros, exceto quando necessário para cumprir obrigações legais.</p>
+            </div>
+            <div class="modal-section">
+              <h3>4. Cookies</h3>
+              <p>Utilizamos cookies para melhorar sua experiência de navegação. Você pode gerenciar as preferências de cookies em seu navegador.</p>
+            </div>
+            <div class="modal-section">
+              <h3>5. Segurança</h3>
+              <p>Adotamos medidas de segurança para proteger suas informações contra acesso não autorizado.</p>
+            </div>
+            <div class="modal-section">
+              <h3>6. Seus Direitos</h3>
+              <p>Você pode solicitar acesso, correção ou exclusão de seus dados pessoais a qualquer momento.</p>
+            </div>
+            <div class="modal-section">
+              <h3>7. Contato</h3>
+              <p>Em caso de dúvidas sobre esta Política, entre em contato pelo e-mail: <a href="mailto:privacidade@learnify.com">privacidade@learnify.com</a></p>
+            </div>
+          </div>
+        </div>
+        <!-- Fim dos Modais Bonitos -->
+        <style>
+          .custom-modal-overlay {
+            display: none;
+            position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.45); z-index: 9998; opacity: 0; transition: opacity 0.35s;
+          }
+          .custom-modal-overlay.active {
+            display: block; opacity: 1;
+          }
+          .custom-modal {
+            display: none;
+            position: fixed; z-index: 9999; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(0.98);
+            background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            min-width: 340px; max-width: 95vw; width: 480px; max-height: 90vh; overflow-y: auto;
+            padding: 0; opacity: 0; transition: opacity 0.35s, transform 0.35s;
+          }
+          .custom-modal.active {
+            display: block; opacity: 1; transform: translate(-50%,-50%) scale(1);
+          }
+          .animated-modal {
+            animation: modalFadeIn 0.45s cubic-bezier(.4,1.4,.6,1) both;
+          }
+          @keyframes modalFadeIn {
+            0% { opacity: 0; transform: translate(-50%,-60%) scale(0.95); }
+            100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+          }
+          .custom-modal-content {
+            padding: 32px 24px 24px 24px;
+            background: linear-gradient(135deg, #f8fafd 75%, #e8f0fe 100%);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(79,140,255,0.07);
+            position: relative;
+          }
+          .modal-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
+          .custom-modal h2 {
+            text-align: center; color: #4F8CFF; margin: 0 0 10px 0; font-size: 2rem;
+          }
+          .custom-modal h3 { color: #3a3a3a; margin-top: 18px; font-size: 1.1rem; }
+          .custom-modal p, .custom-modal ul { color: #444; font-size: 1rem; }
+          .custom-modal ul { padding-left: 20px; }
+          .modal-section { margin-bottom: 8px; }
+          .close-modal {
+            position: absolute; top: 20px; right: 24px; background: none; border: none;
+            font-size: 2rem; color: #888; cursor: pointer; transition: color 0.2s;
+          }
+          .close-modal:hover { color: #4F8CFF; }
+          @media (max-width: 600px) {
+            .custom-modal-content { padding: 18px 6vw 18px 6vw; }
+            .custom-modal { min-width: 0; width: 98vw; }
+          }
+        </style>
+        <script>
+        // Modal Animation & Accessibility
+        function openModal(modalId) {
+          document.getElementById('modalOverlay').classList.add('active');
+          const modal = document.getElementById(modalId);
+          modal.classList.add('active');
+          modal.setAttribute('aria-hidden', 'false');
+          setTimeout(() => { modal.focus(); }, 100);
+        }
+        function closeModal(modalId) {
+          document.getElementById('modalOverlay').classList.remove('active');
+          const modal = document.getElementById(modalId);
+          modal.classList.remove('active');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+        document.getElementById('openTerms').onclick = function(e) {
+          e.preventDefault(); openModal('modalTerms');
+        };
+        document.getElementById('openPrivacy').onclick = function(e) {
+          e.preventDefault(); openModal('modalPrivacy');
+        };
+        document.getElementById('closeTerms').onclick = function() { closeModal('modalTerms'); };
+        document.getElementById('closePrivacy').onclick = function() { closeModal('modalPrivacy'); };
+        document.getElementById('modalOverlay').onclick = function() {
+          closeModal('modalTerms'); closeModal('modalPrivacy');
+        };
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            closeModal('modalTerms'); closeModal('modalPrivacy');
+          }
+        });
+        </script>
+
+        <style>
+        .custom-modal {
+          display: none;
+          position: fixed;
+          z-index: 9999;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0,0,0,0.5);
+        }
+        .custom-modal-content {
+          background: #fff;
+          margin: 5% auto;
+          padding: 30px 20px;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 600px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+          position: relative;
+        }
+        .close-modal {
+          color: #aaa;
+          position: absolute;
+          top: 10px;
+          right: 20px;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        .close-modal:hover {
+          color: #333;
+        }
+        </style>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          function showModal(id) {
+            document.getElementById(id).style.display = 'block';
+          }
+          function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+          }
+          document.getElementById('openTerms').onclick = function(e) {
+            e.preventDefault();
+            showModal('modalTerms');
+          };
+          document.getElementById('openPrivacy').onclick = function(e) {
+            e.preventDefault();
+            showModal('modalPrivacy');
+          };
+          document.getElementById('closeTerms').onclick = function() {
+            closeModal('modalTerms');
+          };
+          document.getElementById('closePrivacy').onclick = function() {
+            closeModal('modalPrivacy');
+          };
+          // Fechar modal ao clicar fora do conteúdo
+          window.onclick = function(event) {
+            if (event.target === document.getElementById('modalTerms')) {
+              closeModal('modalTerms');
+            }
+            if (event.target === document.getElementById('modalPrivacy')) {
+              closeModal('modalPrivacy');
+            }
+          };
+        });
+        </script>
         
         <div class="modal-divider">
           <span>Ou cadastre-se com</span>
@@ -2408,7 +2697,7 @@
   <script>
     $(document).ready(function() {
       // Smooth scrolling
-      $('a[href*="#"]').on('click', function(e) {
+      $('a[href^="#"]:not([href="#"])').on('click', function(e) {
         e.preventDefault();
         $('html, body').animate(
           {
@@ -2428,25 +2717,36 @@
         $('.pricing-amount, .pricing-period').addClass('fade-out').removeClass('fade-in');
         
         setTimeout(() => {
-          // Toggle prices between monthly and yearly
+          // Função para calcular valores anuais e economia
+          function calcularAnual(id, periodoId, desconto=0.2) {
+            // Extrai o valor mensal atual
+            const priceDiv = $(id);
+            const html = priceDiv.html();
+            const match = html.match(/R\$(\d+)/);
+            if (!match) return;
+            const mensal = parseInt(match[1], 10);
+            const anualSemDesconto = mensal * 12;
+            const anualComDesconto = Math.round(anualSemDesconto * (1 - desconto));
+            const economia = anualSemDesconto - anualComDesconto;
+            priceDiv.html(`R$${anualComDesconto}<small>/ano</small>`);
+            $(periodoId).text(`Economia de R$${economia}/ano`);
+          }
+
           if ($(this).hasClass('yearly')) {
-            // Yearly prices (20% discount)
-            $('#student-price').html('R$278<small>/ano</small>');
-            $('#student-period').text('Economia de R$70/ano');
-            $('#pro-price').html('R$948<small>/ano</small>');
-            $('#pro-period').text('Economia de R$240/ano');
-            $('#university-price').html('R$1236<small>/ano</small>');
-            $('#university-period').text('Economia de R$312/ano');
+            // Preço anual calculado automaticamente
+            calcularAnual('#student-price', '#student-period');
+            calcularAnual('#pro-price', '#pro-period');
+            calcularAnual('#university-price', '#university-period');
           } else {
-            // Monthly prices
+            // Mensal: restaura valores padrão
             $('#student-price').html('R$29<small>/mês</small>');
             $('#student-period').text('Cobrado mensalmente');
-            $('#pro-price').html('R$99<small>/mês</small>');
+            $('#pro-price').html('R$49<small>/mês</small>');
             $('#pro-period').text('Ideal para estudantes avançados');
             $('#university-price').html('R$129<small>/mês</small>');
             $('#university-period').text('Ideal para Graduação e Pós');
           }
-          
+
           // Add fade in animation
           $('.pricing-amount, .pricing-period').removeClass('fade-out').addClass('fade-in');
         }, 300);

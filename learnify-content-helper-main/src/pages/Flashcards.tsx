@@ -488,20 +488,6 @@ const Flashcards: React.FC = () => {
     );
   };
 
-  // Botão Voltar
-  const BotaoVoltar = () => (
-    <motion.button
-      initial={{ x: -50, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="voltar-btn"
-      onClick={handleVoltarClick}
-    >
-      <ArrowLeft size={20} className="me-2" />
-      Voltar
-    </motion.button>
-  );
-
   // Estado para novo flashcard
   const [novoFlashcard, setNovoFlashcard] = useState<Omit<Flashcard, 'id' | 'ultimaRevisao' | 'proximaRevisao' | 'acertos' | 'erros' | 'intervaloDias' | 'tempoEstudo' | 'ultimaPontuacao'>>({ 
     pergunta: '',
@@ -2146,7 +2132,7 @@ const Flashcards: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <BotaoVoltar />
+      
       <Header />
       
       <Container className="py-4">

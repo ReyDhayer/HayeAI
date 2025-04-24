@@ -275,23 +275,7 @@ const NarradorTextos = () => {
                     {isPlaying ? <Pause size={20} /> : <Play size={20} />}
                     {isPlaying ? 'Pausar' : 'Reproduzir'}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDownload} 
-                    disabled={isDownloading || !text.trim()}
-                  >
-                    {isDownloading ? (
-                      <>
-                        <Loader2 size={20} className="mr-2 animate-spin" />
-                        Baixando...
-                      </>
-                    ) : (
-                      <>
-                        <Download size={20} className="mr-2" />
-                        Baixar Áudio
-                      </>
-                    )}
-                  </Button>
+                 
                 </div>
               </div>
             </Card>

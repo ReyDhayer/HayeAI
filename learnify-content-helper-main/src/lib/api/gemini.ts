@@ -1,17 +1,20 @@
 import { AIResponse } from '../types';
+import { API_CONFIG } from './config';
 
 export async function sendMessageToGemini(message: string): Promise<AIResponse> {
   try {
-    // Aqui você deve implementar a chamada para a API do Gemini
-    // Exemplo de implementação:
-    const response = await fetch('https://api.gemini.ai/v1/chat', {
+    const response = await fetch(API_CONFIG.GEMINI_API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`
+        'x-goog-api-key': API_CONFIG.GEMINI_API_KEY
       },
       body: JSON.stringify({
-        message: message
+        contents: [{
+          parts: [{
+            text: message
+          }]
+        }]
       })
     });
 
@@ -20,9 +23,10 @@ export async function sendMessageToGemini(message: string): Promise<AIResponse> 
     }
 
     const data = await response.json();
+    const content = data.candidates[0].content.parts[0].text;
     
     return {
-      content: data.response,
+      content,
       loading: false,
       error: null
     };

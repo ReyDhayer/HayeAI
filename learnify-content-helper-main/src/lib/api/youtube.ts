@@ -4,9 +4,13 @@ const YOUTUBE_API_KEY = 'AIzaSyBPrXhkqFXXQGTeilX0kCqZs7yYCqNx9Ck';
 
 export async function getVideoDetails(url: string) {
   try {
+    if (!url) {
+      throw new Error('Por favor, insira uma URL do YouTube.');
+    }
+
     const videoId = extractVideoId(url);
     if (!videoId) {
-      throw new Error('URL do YouTube inválida. Insira uma URL completa do YouTube ou ID do vídeo.');
+      throw new Error('URL do YouTube inválida. Por favor, verifique o link.');
     }
 
     const response = await axios({

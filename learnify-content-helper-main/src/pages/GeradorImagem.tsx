@@ -5,6 +5,11 @@ import Header from '@/components/Header';
 import { useFadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Inicializar a API Gemini
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyBJdcax0rOhfbjVpHlDKutHbezIFLN4DDQ';
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 const AIImageGenerator = () => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +21,16 @@ const AIImageGenerator = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [imageSize, setImageSize] = useState('512x512');
   const [promptHistory, setPromptHistory] = useState([]);
+  const [imageHistory, setImageHistory] = useState([]);
   const [darkMode, setDarkMode] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [imageBase64, setImageBase64] = useState('');
+  const [activeHistoryTab, setActiveHistoryTab] = useState('prompts'); // 'prompts' ou 'images'
+  const [showImageDetail, setShowImageDetail] = useState(false);
+  const [detailImage, setDetailImage] = useState(null);
   const fadeIn = useFadeIn(100);
   
   const heroRef = useRef(null);
@@ -27,6 +41,7 @@ const AIImageGenerator = () => {
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favoriteImages');
     const savedHistory = localStorage.getItem('promptHistory');
+    const savedImageHistory = localStorage.getItem('imageHistory');
     const savedDarkMode = localStorage.getItem('darkMode');
     
     if (savedFavorites) {
@@ -35,6 +50,10 @@ const AIImageGenerator = () => {
     
     if (savedHistory) {
       setPromptHistory(JSON.parse(savedHistory));
+    }
+    
+    if (savedImageHistory) {
+      setImageHistory(JSON.parse(savedImageHistory));
     }
     
     if (savedDarkMode !== null) {
@@ -82,9 +101,46 @@ const AIImageGenerator = () => {
       }
     }
   };
+
+  // Função para converter arquivo para base64
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Função para lidar com o upload de imagem
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const base64 = await fileToBase64(file);
+      setUploadedImage(file);
+      setImageBase64(base64.toString());
+      toast.success('Imagem carregada com sucesso!', {
+        icon: <Image className="text-blue-500" />,
+        position: 'bottom-right',
+      });
+    } catch (error) {
+      console.error('Erro ao carregar imagem:', error);
+      toast.error('Erro ao carregar imagem. Tente novamente.', {
+        position: 'bottom-right',
+      });
+    }
+  };
   
-  const handleGenerate = () => {
-    if (!prompt.trim()) return;
+  // Função para gerar imagem com Gemini (conforme documentação oficial)
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast.error('Por favor, insira um prompt para gerar a imagem.', {
+        position: 'bottom-right',
+      });
+      return;
+    }
     
     setLoading(true);
     
@@ -93,28 +149,236 @@ const AIImageGenerator = () => {
     setPromptHistory(newHistory);
     localStorage.setItem('promptHistory', JSON.stringify(newHistory));
     
-    // Simular o tempo de geração de imagem
-    setTimeout(() => {
-      // Em uma implementação real, aqui seria feita uma chamada para a API de geração de imagens
+    try {
+      // Preparar o prompt com base no estilo selecionado
+      let stylePrompt = prompt;
+      switch (selectedModel) {
+        case 'realista':
+          stylePrompt = `Photorealistic, high definition, detailed, 4K, high quality image: ${prompt}`;
+          break;
+        case 'artistico':
+          stylePrompt = `Artistic style, digital painting, colorful, vibrant, detailed: ${prompt}`;
+          break;
+        case 'abstrato':
+          stylePrompt = `Abstract art, geometric shapes, vibrant colors, modern: ${prompt}`;
+          break;
+        case 'anime':
+          stylePrompt = `Anime style, Japanese drawing, colorful, detailed, anime illustration: ${prompt}`;
+          break;
+      }
+      // Gemini Imagen 3 NÃO está disponível no browser/front-end.
+      toast.error('A geração de imagens com Gemini Imagen 3 só está disponível via backend Node.js. Usando imagem de exemplo (fallback).', {
+        position: 'bottom-right',
+      });
+      // Fallback para simulação de imagem em caso de erro
       const newImage = {
         id: Date.now(),
         url: `https://source.unsplash.com/random/${imageSize}/?${encodeURIComponent(prompt)}`,
         prompt: prompt,
-        model: selectedModel,
+        model: selectedModel + " (fallback)",
+        created: new Date().toISOString()
+      };
+      setGeneratedImages([newImage, ...generatedImages]);
+      setImageHistory([newImage, ...imageHistory]);
+      localStorage.setItem('imageHistory', JSON.stringify([newImage, ...imageHistory]));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para editar imagem com Gemini
+  const handleEditImage = async () => {
+    if (!imageBase64 || !editPrompt.trim()) {
+      toast.error('Por favor, carregue uma imagem e insira instruções de edição.', {
+        position: 'bottom-right',
+      });
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      // Configurar o modelo Gemini para edição de imagens
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+      
+      // Extrair apenas a parte base64 da string
+      const base64Data = imageBase64.split(',')[1];
+      const mimeType = imageBase64.split(',')[0].split(':')[1].split(';')[0];
+      
+      console.log("Enviando imagem para edição com prompt:", editPrompt);
+      console.log("Tipo MIME:", mimeType);
+      
+      // Tentar fazer uma requisição direta para a API Gemini usando fetch
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { 
+                    inlineData: { 
+                      mimeType: mimeType, 
+                      data: base64Data 
+                    } 
+                  },
+                  { text: `Edite esta imagem: ${editPrompt}. Responda APENAS com a imagem editada, sem texto.` }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 32,
+              topP: 1,
+              maxOutputTokens: 4096,
+              responseMimeType: "image/png"
+            }
+          })
+        });
+        
+        const data = await response.json();
+        console.log("Resposta da API direta (edição):", data);
+        
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+          const parts = data.candidates[0].content.parts;
+          const imagePart = parts.find(part => part.inlineData && part.inlineData.data);
+          
+          if (imagePart && imagePart.inlineData && imagePart.inlineData.data) {
+            const imageData = imagePart.inlineData.data;
+            
+            // Criar objeto de imagem editada
+            const newImage = {
+              id: Date.now(),
+              url: `data:${imagePart.inlineData.mimeType || mimeType};base64,${imageData}`,
+              prompt: editPrompt,
+              model: 'editado',
+              created: new Date().toISOString()
+            };
+            
+            setGeneratedImages([newImage, ...generatedImages]);
+            setImageHistory([newImage, ...imageHistory]);
+            localStorage.setItem('imageHistory', JSON.stringify([newImage, ...imageHistory]));
+            setEditMode(false);
+            setUploadedImage(null);
+            setImageBase64('');
+            setEditPrompt('');
+            
+            toast.success('Imagem editada com sucesso!', {
+              icon: <Sparkles className="text-purple-500" />,
+              position: 'bottom-right',
+            });
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // Se chegou aqui, não conseguiu extrair a imagem da resposta
+        throw new Error('Não foi possível extrair a imagem da resposta');
+      } catch (directApiError) {
+        console.error('Erro na chamada direta da API (edição):', directApiError);
+        
+        // Tentar com a biblioteca padrão
+        const result = await model.generateContent({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { 
+                  inlineData: { 
+                    mimeType: mimeType, 
+                    data: base64Data 
+                  } 
+                },
+                { text: `Edite esta imagem: ${editPrompt}. Responda APENAS com a imagem editada, sem texto.` }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 32,
+            topP: 1,
+            maxOutputTokens: 4096,
+          },
+        });
+        
+        const response = result.response;
+        console.log("Resposta completa da API (edição):", response);
+        
+        // Verificar se há dados de imagem na resposta
+        if (response.candidates && response.candidates[0].content.parts) {
+          const parts = response.candidates[0].content.parts;
+          console.log("Partes da resposta (edição):", parts);
+          
+          // Procurar por dados de imagem em qualquer parte da resposta
+          const imagePart = parts.find(part => part.inlineData && part.inlineData.data);
+          
+          if (imagePart && imagePart.inlineData && imagePart.inlineData.data) {
+            // Extrair a imagem em base64
+            const imageData = imagePart.inlineData.data;
+            console.log("Dados de imagem editada encontrados:", imageData.substring(0, 50) + "...");
+            
+            // Criar objeto de imagem editada
+            const newImage = {
+              id: Date.now(),
+              url: `data:${imagePart.inlineData.mimeType || mimeType};base64,${imageData}`,
+              prompt: editPrompt,
+              model: 'editado',
+              created: new Date().toISOString()
+            };
+            
+            setGeneratedImages([newImage, ...generatedImages]);
+            setImageHistory([newImage, ...imageHistory]);
+            localStorage.setItem('imageHistory', JSON.stringify([newImage, ...imageHistory]));
+            setEditMode(false);
+            setUploadedImage(null);
+            setImageBase64('');
+            setEditPrompt('');
+            
+            toast.success('Imagem editada com sucesso!', {
+              icon: <Sparkles className="text-purple-500" />,
+              position: 'bottom-right',
+            });
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // Se chegou aqui, não conseguiu extrair a imagem da resposta
+        throw new Error('Não foi possível extrair a imagem da resposta');
+      }
+    } catch (error) {
+      console.error('Erro ao editar imagem:', error);
+      
+      // Fallback para caso de erro na edição
+      const newImage = {
+        id: Date.now(),
+        url: imageBase64,
+        prompt: `${editPrompt} (erro - original mantida)`,
+        model: 'editado (erro)',
         created: new Date().toISOString()
       };
       
       setGeneratedImages([newImage, ...generatedImages]);
-      setLoading(false);
-      toast.success('Imagem gerada com sucesso!', {
-        icon: <Sparkles className="text-purple-500" />,
+      setImageHistory([newImage, ...imageHistory]);
+      localStorage.setItem('imageHistory', JSON.stringify([newImage, ...imageHistory]));
+      
+      toast.warning('Erro ao editar imagem, mantendo original', {
         position: 'bottom-right',
       });
-    }, 2000);
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  // Função para deletar imagem
   const handleDeleteImage = (id) => {
     setGeneratedImages(generatedImages.filter(img => img.id !== id));
+    setImageHistory(imageHistory.filter(img => img.id !== id));
+    localStorage.setItem('imageHistory', JSON.stringify(imageHistory.filter(img => img.id !== id)));
     setFavorites(favorites.filter(favId => favId !== id));
     localStorage.setItem('favoriteImages', JSON.stringify(favorites.filter(favId => favId !== id)));
     toast.success('Imagem removida com sucesso', {
@@ -142,8 +406,8 @@ const AIImageGenerator = () => {
   const handleShare = async (image) => {
     try {
       await navigator.share({
-        title: 'Imagem Gerada por IA - ImaginAI',
-        text: `Imagem criada com ImaginAI: ${image.prompt}`,
+        title: 'Imagem Gerada por IA - HayeAI',
+        text: `Imagem criada com HayeAI: ${image.prompt}`,
         url: image.url
       });
       toast.success('Imagem compartilhada com sucesso', {
@@ -163,7 +427,14 @@ const AIImageGenerator = () => {
   const usePromptFromHistory = (historyPrompt) => {
     setPrompt(historyPrompt);
     setShowSidebar(false);
-    document.getElementById('prompt-input').focus();
+    document.getElementById('prompt-input')?.focus();
+  };
+  
+  const useImageFromHistory = (image) => {
+    setImageBase64(image.url);
+    setEditMode(true);
+    setEditPrompt(`Modifique esta imagem de: ${image.prompt}`);
+    setShowSidebar(false);
   };
   
   const toggleDarkMode = () => {
@@ -199,63 +470,181 @@ const AIImageGenerator = () => {
             initial={{ x: '-100%', opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '-100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 20 }}
-            className={`fixed top-0 left-0 h-full w-72 z-50 ${darkMode ? 'bg-indigo-950/90' : 'bg-white/90'} backdrop-blur-xl shadow-xl border-r ${darkMode ? 'border-indigo-500/20' : 'border-indigo-200'}`}
+            className={`fixed top-0 left-0 h-full w-80 z-50 shadow-2xl ${
+              darkMode ? 'bg-gradient-to-b from-indigo-950/90 to-purple-950/90 border-r border-white/10' : 'bg-white/90 border-r border-indigo-200/50'
+            } backdrop-blur-xl p-6 overflow-y-auto`}
           >
-            <div className="p-4 flex justify-between items-center border-b border-indigo-500/20">
-              <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-indigo-950'}`}>ImaginAI</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-indigo-950'}`}>Menu</h3>
               <button 
                 onClick={() => setShowSidebar(false)}
-                className={`p-2 rounded-full ${darkMode ? 'hover:bg-indigo-800/50' : 'hover:bg-indigo-100'} transition-all`}
+                className={`p-2 rounded-full ${darkMode ? 'hover:bg-white/10' : 'hover:bg-indigo-100'} transition-colors`}
               >
                 <X size={20} className={darkMode ? 'text-white' : 'text-indigo-950'} />
               </button>
             </div>
             
-            <div className="p-4">
-              <div className="mb-6">
-                <h3 className={`text-sm uppercase tracking-wider mb-2 font-medium ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
-                  <History size={16} className="inline mr-2" />
-                  Histórico
-                </h3>
-                {promptHistory.length === 0 ? (
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Nenhum histórico disponível</p>
-                ) : (
-                  <ul className="space-y-2">
-                    {promptHistory.map((historyItem, index) => (
-                      <li 
-                        key={index}
-                        onClick={() => usePromptFromHistory(historyItem)}
-                        className={`p-2 rounded-lg text-sm truncate cursor-pointer ${darkMode ? 'hover:bg-indigo-800/50 text-gray-200' : 'hover:bg-indigo-100 text-gray-700'} transition-all`}
-                      >
-                        {historyItem}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+            <div className="mb-8">
+              <div className="flex items-center mb-4">
+                <Settings className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
+                <h4 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-indigo-950'}`}>Configurações</h4>
               </div>
               
-              <div className="mb-6">
-                <h3 className={`text-sm uppercase tracking-wider mb-2 font-medium ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
-                  <Settings size={16} className="inline mr-2" />
-                  Configurações
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Modo Escuro</span>
-                    <button 
-                      onClick={toggleDarkMode}
-                      className={`w-12 h-6 rounded-full relative ${darkMode ? 'bg-indigo-600' : 'bg-gray-300'} transition-all duration-300`}
-                    >
-                      <motion.div 
-                        className="absolute top-1 w-4 h-4 rounded-full bg-white"
-                        animate={{ left: darkMode ? '1.75rem' : '0.25rem' }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      />
-                    </button>
-                  </div>
-                </div>
+             
+            </div>
+            
+            <div className="mb-8">
+              <div className="flex items-center mb-4">
+                <History className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
+                <h4 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-indigo-950'}`}>Histórico</h4>
               </div>
+              
+              <div className="flex gap-4 mb-4">
+                <button 
+                  onClick={() => setActiveHistoryTab('prompts')}
+                  className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center w-full md:w-auto ${
+                    activeHistoryTab === 'prompts' 
+                      ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                      : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
+                  }`}
+                >
+                  Prompts
+                </button>
+                <button 
+                  onClick={() => setActiveHistoryTab('images')}
+                  className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center w-full md:w-auto ${
+                    activeHistoryTab === 'images' 
+                      ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                      : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
+                  }`}
+                >
+                  Imagens
+                </button>
+              </div>
+              
+              {activeHistoryTab === 'prompts' ? (
+                <div>
+                  {promptHistory.length > 0 ? (
+                    <div className="space-y-2">
+                      {promptHistory.map((historyPrompt, index) => (
+                        <motion.div 
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`p-3 rounded-lg cursor-pointer transition-all ${
+                            darkMode 
+                              ? 'bg-black/20 hover:bg-purple-900/30 border border-white/10' 
+                              : 'bg-white hover:bg-indigo-50 border border-indigo-100'
+                          }`}
+                          onClick={() => usePromptFromHistory(historyPrompt)}
+                        >
+                          <p className={`text-sm line-clamp-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {historyPrompt}
+                          </p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Nenhum prompt no histórico ainda.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  {imageHistory.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {imageHistory.map((image) => (
+                        <motion.div 
+                          key={image.id}
+                          whileHover={{ scale: 1.05 }}
+                          className="aspect-square rounded-lg overflow-hidden relative cursor-pointer"
+                          onClick={() => {
+                            setDetailImage(image);
+                            setShowImageDetail(true);
+                          }}
+                        >
+                          <img 
+                            src={image.url} 
+                            alt={image.prompt}
+                            className="w-full h-full object-cover"
+                          />
+                          <div 
+                            className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity"
+                          >
+                            <div className="absolute bottom-2 right-2">
+                              <Heart className={`text-white ${favorites.includes(image.id) ? 'fill-white' : ''}`} size={16} />
+                            </div>
+                            <div 
+                              className="absolute bottom-2 left-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                useImageFromHistory(image);
+                              }}
+                            >
+                              <RefreshCw className="text-white" size={16} />
+                            </div>
+                            <div 
+                              className="absolute top-2 right-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDetailImage(image);
+                                setShowImageDetail(true);
+                              }}
+                            >
+                              <MessageSquare className="text-white" size={16} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Nenhuma imagem no histórico ainda.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <div className="flex items-center mb-4">
+                <Heart className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
+                <h4 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-indigo-950'}`}>Favoritos</h4>
+              </div>
+              
+              {favorites.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {generatedImages
+                    .filter(img => favorites.includes(img.id))
+                    .map((image) => (
+                      <motion.div 
+                        key={image.id}
+                        whileHover={{ scale: 1.05 }}
+                        className="aspect-square rounded-lg overflow-hidden relative"
+                      >
+                        <img 
+                          src={image.url} 
+                          alt={image.prompt}
+                          className="w-full h-full object-cover"
+                        />
+                        <div 
+                          className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity"
+                          onClick={() => handleToggleFavorite(image.id)}
+                        >
+                          <div className="absolute bottom-2 right-2">
+                            <Heart className="text-white fill-white" size={16} />
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              ) : (
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Nenhuma imagem favorita ainda.
+                </p>
+              )}
             </div>
           </motion.div>
         )}
@@ -269,250 +658,531 @@ const AIImageGenerator = () => {
         <Menu size={20} className={darkMode ? 'text-white' : 'text-indigo-950'} />
       </button>
       
-      {/* Main content */}
-      <main className={`container mx-auto px-4 py-8 ${fadeIn} relative z-10`}>
-        <div className="max-w-6xl mx-auto">
-          {/* Hero section */}
-          <motion.div
-            ref={heroRef}
-            style={{ opacity: heroOpacity, scale: heroScale }}
-            whileHover={{ scale: 1.02 }}
-            className={`text-center mb-12 relative backdrop-blur-lg ${darkMode ? 'bg-black/10 border-white/10 shadow-purple-500/10' : 'bg-white/30 border-indigo-200/50 shadow-indigo-200/30'} rounded-3xl p-8 border shadow-xl`}>
-            <motion.h2 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent ${darkMode ? 'bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800'} animate-gradient tracking-tight`}>
-              Transforme suas ideias em imagens incríveis
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className={`${darkMode ? 'text-gray-200' : 'text-gray-700'} text-lg md:text-xl max-w-2xl mx-auto leading-relaxed`}>
-              Utilize o poder da Inteligência Artificial para criar imagens únicas em segundos,
-              perfeitas para seus projetos criativos.
-            </motion.p>
-          </motion.div>
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        {/* Hero Section */}
+        <motion.div 
+          ref={heroRef}
+          style={{ opacity: heroOpacity, scale: heroScale }}
+          className="text-center mb-12"
+        >
+          <motion.h1 
+            className={`text-4xl md:text-6xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+              HayeAI
+            </span>
+          </motion.h1>
+          <motion.p 
+            className={`text-xl md:text-2xl mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Transforme suas ideias em imagens incríveis com IA
+          </motion.p>
           
-          {/* Generator section */}
+          {/* Tabs para alternar entre geração e edição */}
+          <motion.div 
+            className="flex justify-center mb-8 gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <motion.button
+              className={`px-6 py-3 rounded-full font-medium transition-all ${!editMode 
+                ? (darkMode ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40') 
+                : (darkMode ? 'bg-gray-800 text-gray-400 cursor-not-allowed' : 'bg-gray-300 text-gray-700 cursor-not-allowed')
+              }`}
+              onClick={() => setEditMode(false)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Sparkles className="inline-block mr-2 h-5 w-5" />
+              Gerar Imagem
+            </motion.button>
+            <motion.button
+              className={`px-6 py-3 rounded-full font-medium transition-all ${editMode 
+                ? (darkMode ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40') 
+                : (darkMode ? 'bg-gray-800 text-gray-400 cursor-not-allowed' : 'bg-gray-300 text-gray-700 cursor-not-allowed')
+              }`}
+              onClick={() => setEditMode(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Image className="inline-block mr-2 h-5 w-5" />
+              Editar Imagem
+            </motion.button>
+          </motion.div>
+        </motion.div>
+        
+        {/* Modo de Geração de Imagem */}
+        {!editMode && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className={`backdrop-blur-xl ${darkMode ? 'bg-black/40 border-white/10 hover:shadow-purple-500/30 hover:border-purple-500/40' : 'bg-white/60 border-indigo-200/50 hover:shadow-indigo-300/40 hover:border-indigo-400/40'} rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.15)] border mb-12 transition-all duration-500 transform hover:-translate-y-1`}>
-            <h3 className={`text-2xl font-semibold mb-6 flex items-center ${darkMode ? 'text-white' : 'text-indigo-950'}`}>
-              <Camera className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
-              Gerador de Imagens
-            </h3>
-            
-            {/* Model selector */}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+            className={`max-w-4xl mx-auto p-6 rounded-xl backdrop-blur-md ${
+              darkMode ? 'bg-black/30 border border-white/10 shadow-xl' : 'bg-white/70 border border-gray-200 shadow-lg'
+            }`}
+          >
             <div className="mb-6">
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Escolha um estilo:</label>
-              <div className="flex flex-wrap gap-3">
-                {models.map(model => (
-                  <motion.button
-                    key={model.id}
-                    onClick={() => setSelectedModel(model.id)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center ${
-                      selectedModel === model.id 
-                        ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
-                        : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
-                    }`}
-                  >
-                    {model.icon}
-                    {model.name}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Image size selector */}
-            <div className="mb-6">
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Tamanho da imagem:</label>
-              <div className="flex flex-wrap gap-3">
-                {imageSizes.map(size => (
-                  <motion.button
-                    key={size.value}
-                    onClick={() => setImageSize(size.value)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 ${
-                      imageSize === size.value 
-                        ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
-                        : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
-                    }`}
-                  >
-                    {size.label}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Input section */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Descreva a imagem que você deseja criar..."
-                  className={`w-full p-4 md:p-8 transition-all duration-300 rounded-2xl border outline-none text-lg md:text-xl font-medium tracking-wide shadow-inner ${
-                    darkMode 
-                      ? 'bg-gradient-to-br from-black/80 to-indigo-900/60 backdrop-blur-lg border-indigo-400/30 focus:border-indigo-300/90 focus:ring-2 focus:ring-indigo-300/60 placeholder-white/60 text-white shadow-purple-500/10' 
-                      : 'bg-white/80 backdrop-blur-lg border-indigo-300/50 focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/40 placeholder-gray-500/90 text-gray-800 shadow-indigo-200/30'
-                  }`}
-                  rows={3}
-                  id="prompt-input"
-                />
+              <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <div className="flex-1">
+                  <label className={`block mb-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Descreva a imagem que deseja criar
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      id="prompt-input"
+                      className={`w-full p-4 pr-12 rounded-lg border ${
+                        darkMode 
+                          ? 'bg-gray-900/50 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-indigo-500'
+                      } focus:ring-2 focus:outline-none transition-all`}
+                      placeholder="Ex: Um gato astronauta flutuando no espaço, estilo realista"
+                      rows={3}
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.ctrlKey) {
+                          e.preventDefault();
+                          handleGenerate();
+                        }
+                      }}
+                    />
+                    <div className="absolute right-3 bottom-3 text-xs text-gray-500">
+                      {prompt.length} caracteres
+                    </div>
+                  </div>
+                  <div className="text-xs mt-1 text-gray-500">
+                    Pressione Ctrl+Enter para gerar
+                  </div>
+                </div>
               </div>
               
-              <div className="flex items-end">
-                <motion.button
-                  onClick={handleGenerate}
-                  disabled={loading || !prompt.trim()}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-8 py-4 md:px-10 md:py-5 rounded-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center w-full md:w-auto text-lg md:text-xl font-medium tracking-wide ${
-                    darkMode 
-                      ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 hover:shadow-xl hover:shadow-indigo-500/30 text-white' 
-                      : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:shadow-xl hover:shadow-indigo-300/40 text-white'
-                  } disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none disabled:hover:transform-none`}
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin mr-2" />
-                  ) : (
-                    <Sparkles className="mr-2" />
-                  )}
-                  {loading ? 'Gerando...' : 'Gerar Imagem'}
-                  {!loading && <ChevronRight className="ml-1" />}
-                </motion.button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className={`block mb-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Estilo
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {models.map((model) => (
+                      <motion.button
+                        key={model.id}
+                        onClick={() => setSelectedModel(model.id)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center w-full md:w-auto ${
+                          selectedModel === model.id 
+                            ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                            : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
+                        }`}
+                      >
+                        {model.icon}
+                        {model.name}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className={`block mb-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Tamanho
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {imageSizes.map((size) => (
+                      <motion.button
+                        key={size.value}
+                        onClick={() => setImageSize(size.value)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 ${
+                          imageSize === size.value 
+                            ? (darkMode ? 'bg-purple-600/90 text-white shadow-lg shadow-purple-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                            : (darkMode ? 'bg-black/20 hover:bg-purple-500/20 border border-white/10' : 'bg-white/40 hover:bg-indigo-100/60 border border-indigo-200/50')
+                        }`}
+                      >
+                        {size.label}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
               </div>
+              
+              <motion.button
+                onClick={handleGenerate}
+                disabled={loading || !prompt.trim()}
+                whileHover={!loading && prompt.trim() ? { scale: 1.03 } : {}}
+                whileTap={!loading && prompt.trim() ? { scale: 0.97 } : {}}
+                className={`w-full py-3 px-6 rounded-lg flex items-center justify-center font-medium transition-all ${
+                  !loading && prompt.trim()
+                    ? (darkMode ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40' : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40')
+                    : (darkMode ? 'bg-gray-800 text-gray-400 cursor-not-allowed' : 'bg-gray-300 text-gray-700 cursor-not-allowed')
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                    Gerando imagem...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Gerar Imagem
+                  </>
+                )}
+              </motion.button>
             </div>
           </motion.div>
-          
-          {/* Generated images section */}
-          <AnimatePresence>
-            {generatedImages.length > 0 && (
-              <motion.div 
-                className="mt-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <h3 className={`text-2xl font-semibold mb-6 flex items-center ${darkMode ? 'text-white' : 'text-indigo-950'}`}>
-                  <Image className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
-                  Imagens Geradas
-                </h3>
-                
-                <motion.div 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  variants={staggerContainer}
-                  initial="hidden"
-                  animate="show"
-                >
-                  {generatedImages.map((image) => (
-                    <motion.div
-                      key={image.id}
-                      variants={fadeInUp}
-                      className={`${
-                        darkMode 
-                          ? 'bg-gradient-to-br from-indigo-950/40 via-purple-950/40 to-black/50 border-indigo-500/30 hover:border-indigo-500/50 hover:shadow-indigo-500/30' 
-                          : 'bg-white/70 border-indigo-200/50 hover:border-indigo-400/70 hover:shadow-indigo-300/30'
-                      } backdrop-blur-lg rounded-2xl overflow-hidden group hover:shadow-2xl border transition-all duration-500 transform hover:-translate-y-2`}
-                    >
-                      <div className="relative aspect-square">
-                        <img
-                          src={image.url}
-                          alt={image.prompt}
-                          className="w-full h-full object-cover transition-all duration-700 filter"
-                          onLoad={(e) => {
-                            const imgElement = e.target as HTMLImageElement;
-                            imgElement.style.opacity = '1';
-                            imgElement.parentElement?.querySelector('.loading-overlay')?.classList.add('opacity-0');
-                            setTimeout(() => {
-                              imgElement.parentElement?.querySelector('.loading-overlay')?.remove();
-                            }, 500);
-                          }}
-                          style={{ opacity: '0' }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 loading-overlay transition-opacity duration-500">
-                          <Loader2 className={`w-8 h-8 animate-spin ${darkMode ? 'text-purple-400' : 'text-indigo-500'}`} />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                            <div className={`text-xs ${darkMode ? 'text-gray-300' : 'text-white'} bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full`}>
-                              {image.model}
-                            </div>
-                            <div className="flex gap-2">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-900 hover:bg-white transition-all duration-300 shadow-lg"
-                                onClick={() => window.open(image.url, '_blank')}
-                              >
-                                <Download size={20} />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className={`p-2 backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg ${favorites.includes(image.id) ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-900'}`}
-                                onClick={() => handleToggleFavorite(image.id)}
-                              >
-                                <Heart size={20} fill={favorites.includes(image.id) ? 'currentColor' : 'none'} />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-900 hover:bg-white transition-all duration-300 shadow-lg"
-                                onClick={() => handleShare(image)}
-                              >
-                                <Share2 size={20} />
-                              </motion.button>
-                              <motion.button 
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 bg-red-500/90 backdrop-blur-sm rounded-full text-white hover:bg-red-600 transition-all duration-300 shadow-lg"
-                                onClick={() => handleDeleteImage(image.id)}
-                              >
-                                <Trash2 size={20} />
-                              </motion.button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <p className={`text-sm line-clamp-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{image.prompt}</p>
-                        <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {new Date(image.created).toLocaleString()}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+        )}
+        
+        {/* Modo de Edição de Imagem */}
+        {editMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+            className={`max-w-4xl mx-auto p-6 rounded-xl backdrop-blur-md ${
+              darkMode ? 'bg-black/30 border border-white/10 shadow-xl' : 'bg-white/70 border border-gray-200 shadow-lg'
+            }`}
+          >
+            <div className="mb-6">
+              <div className="flex flex-col md:flex-row gap-6 mb-4">
+                <div className="flex-1">
+                  <label className={`block mb-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Carregue uma imagem para editar
+                  </label>
                   
-                  <motion.div 
+                  {!imageBase64 ? (
+                    <div 
+                      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                        darkMode 
+                          ? 'border-gray-600 hover:border-purple-500 bg-gray-900/30' 
+                          : 'border-gray-300 hover:border-indigo-500 bg-gray-100/50'
+                      }`}
+                      onClick={() => document.getElementById('image-upload').click()}
+                    >
+                      <input
+                        type="file"
+                        id="image-upload"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                      <Image className={`mx-auto h-12 w-12 mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        Clique para selecionar ou arraste uma imagem
+                      </p>
+                      <p className="text-sm mt-2 text-gray-500">
+                        PNG, JPG ou JPEG (max. 5MB)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <img 
+                        src={imageBase64} 
+                        alt="Imagem carregada" 
+                        className="w-full h-auto rounded-lg object-contain max-h-64"
+                      />
+                      <button
+                        onClick={() => {
+                          setUploadedImage(null);
+                          setImageBase64('');
+                        }}
+                        className="absolute top-2 right-2 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  <label className={`block mb-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Instruções de edição
+                  </label>
+                  <textarea
+                    className={`w-full p-4 rounded-lg border ${
+                      darkMode 
+                        ? 'bg-gray-900/50 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-indigo-500'
+                    } focus:ring-2 focus:outline-none transition-all`}
+                    placeholder="Ex: Adicione um chapéu vermelho, mude o fundo para uma praia"
+                    rows={5}
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <motion.button
+                onClick={handleEditImage}
+                disabled={loading || !imageBase64 || !editPrompt.trim()}
+                whileHover={!loading && imageBase64 && editPrompt.trim() ? { scale: 1.03 } : {}}
+                whileTap={!loading && imageBase64 && editPrompt.trim() ? { scale: 0.97 } : {}}
+                className={`w-full py-3 px-6 rounded-lg flex items-center justify-center font-medium transition-all ${
+                  !loading && imageBase64 && editPrompt.trim()
+                    ? (darkMode ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40' : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40')
+                    : (darkMode ? 'bg-gray-800 text-gray-400 cursor-not-allowed' : 'bg-gray-300 text-gray-700 cursor-not-allowed')
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                    Editando imagem...
+                  </>
+                ) : (
+                  <>
+                    <Image className="mr-2 h-5 w-5" />
+                    Editar Imagem
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Galeria de imagens geradas */}
+        <AnimatePresence>
+          {generatedImages.length > 0 && (
+            <motion.div 
+              className="mt-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3 className={`text-2xl font-semibold mb-6 flex items-center ${darkMode ? 'text-white' : 'text-indigo-950'}`}>
+                <Image className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
+                Imagens Geradas
+              </h3>
+              
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+              >
+                {generatedImages.map((image) => (
+                  <motion.div
+                    key={image.id}
                     variants={fadeInUp}
                     className={`${
                       darkMode 
-                        ? 'border-2 border-dashed border-white/20 backdrop-blur-lg bg-black/30 hover:border-purple-500/70 hover:bg-black/40 hover:shadow-purple-500/20' 
-                        : 'border-2 border-dashed border-indigo-200/60 backdrop-blur-lg bg-white/40 hover:border-indigo-400/70 hover:bg-white/60 hover:shadow-indigo-300/20'
-                    } rounded-2xl flex items-center justify-center aspect-square cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl`}
-                    onClick={() => document.getElementById('prompt-input').focus()}
+                        ? 'bg-gradient-to-br from-indigo-950/40 via-purple-950/40 to-black/50 border-indigo-500/30 hover:border-indigo-500/50 hover:shadow-indigo-500/30' 
+                        : 'bg-white/70 border-indigo-200/50 hover:border-indigo-400/70 hover:shadow-indigo-300/30'
+                    } backdrop-blur-lg rounded-2xl overflow-hidden group hover:shadow-2xl border transition-all duration-500 transform hover:-translate-y-2`}
                   >
-                    <div className={`flex flex-col items-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      <PlusCircle size={40} className="mb-2" />
-                      <p>Gerar nova imagem</p>
+                    <div className="relative aspect-square">
+                      <img
+                        src={image.url}
+                        alt={image.prompt}
+                        className="w-full h-full object-cover transition-all duration-700 filter"
+                        onLoad={(e) => {
+                          const imgElement = e.target as HTMLImageElement;
+                          imgElement.style.opacity = '1';
+                          imgElement.parentElement?.querySelector('.loading-overlay')?.classList.add('opacity-0');
+                          setTimeout(() => {
+                            imgElement.parentElement?.querySelector('.loading-overlay')?.remove();
+                          }, 500);
+                        }}
+                        style={{ opacity: '0' }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 loading-overlay transition-opacity duration-500">
+                        <Loader2 className={`w-8 h-8 animate-spin ${darkMode ? 'text-purple-400' : 'text-indigo-500'}`} />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                          <div className={`text-xs ${darkMode ? 'text-gray-300' : 'text-white'} bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full`}>
+                            {image.model}
+                          </div>
+                          <div className="flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-900 hover:bg-white transition-all duration-300 shadow-lg"
+                              onClick={() => window.open(image.url, '_blank')}
+                            >
+                              <Download size={20} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className={`p-2 backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg ${favorites.includes(image.id) ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-900'}`}
+                              onClick={() => handleToggleFavorite(image.id)}
+                            >
+                              <Heart size={20} fill={favorites.includes(image.id) ? 'currentColor' : 'none'} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-900 hover:bg-white transition-all duration-300 shadow-lg"
+                              onClick={() => handleShare(image)}
+                            >
+                              <Share2 size={20} />
+                            </motion.button>
+                            <motion.button 
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 bg-red-500/90 backdrop-blur-sm rounded-full text-white hover:bg-red-600 transition-all duration-300 shadow-lg"
+                              onClick={() => handleDeleteImage(image.id)}
+                            >
+                              <Trash2 size={20} />
+                            </motion.button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <p className={`text-sm line-clamp-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{image.prompt}</p>
+                      <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {new Date(image.created).toLocaleString()}
+                      </p>
                     </div>
                   </motion.div>
+                ))}
+                
+                <motion.div 
+                  variants={fadeInUp}
+                  className={`${
+                    darkMode 
+                      ? 'border-2 border-dashed border-white/20 backdrop-blur-lg bg-black/30 hover:border-purple-500/70 hover:bg-black/40 hover:shadow-purple-500/20' 
+                      : 'border-2 border-dashed border-indigo-200/60 backdrop-blur-lg bg-white/40 hover:border-indigo-400/70 hover:bg-white/60 hover:shadow-indigo-300/20'
+                  } rounded-2xl flex items-center justify-center aspect-square cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl`}
+                  onClick={() => document.getElementById('prompt-input').focus()}
+                >
+                  <div className={`flex flex-col items-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <PlusCircle size={40} className="mb-2" />
+                    <p>Gerar nova imagem</p>
+                  </div>
                 </motion.div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </main>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Modal para visualização detalhada de imagem */}
+        <AnimatePresence>
+          {showImageDetail && detailImage && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+              onClick={() => setShowImageDetail(false)}
+            >
+              <motion.div 
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.5 }}
+                transition={{ duration: 0.3 }}
+                className={`max-w-4xl w-full p-6 rounded-2xl ${darkMode ? 'bg-gray-900/90 text-white' : 'bg-white/90 text-gray-900'} backdrop-blur-lg shadow-2xl`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-2xl font-bold">{detailImage.prompt}</h3>
+                  <button 
+                    onClick={() => setShowImageDetail(false)}
+                    className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors`}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex-1">
+                    <img 
+                      src={detailImage.url} 
+                      alt={detailImage.prompt}
+                      className="w-full h-auto rounded-lg object-contain max-h-[60vh]"
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col">
+                    <div className="mb-4">
+                      <h4 className="text-lg font-semibold mb-2">Detalhes</h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <strong>Modelo:</strong> {detailImage.model}
+                      </p>
+                      <p className={`text-sm mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <strong>Criado em:</strong> {new Date(detailImage.created).toLocaleString()}
+                      </p>
+                      <p className={`text-sm mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <strong>Prompt:</strong> {detailImage.prompt}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-auto space-y-3">
+                      <button
+                        onClick={() => {
+                          setPrompt(detailImage.prompt);
+                          setShowImageDetail(false);
+                          setEditMode(false);
+                          document.getElementById('prompt-input')?.focus();
+                        }}
+                        className={`w-full py-3 px-4 rounded-lg flex items-center justify-center ${
+                          darkMode 
+                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                        } transition-colors`}
+                      >
+                        <RefreshCw className="mr-2 h-5 w-5" />
+                        Reutilizar Prompt
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          useImageFromHistory(detailImage);
+                          setShowImageDetail(false);
+                        }}
+                        className={`w-full py-3 px-4 rounded-lg flex items-center justify-center ${
+                          darkMode 
+                            ? 'bg-pink-600 hover:bg-pink-700 text-white' 
+                            : 'bg-pink-600 hover:bg-pink-700 text-white'
+                        } transition-colors`}
+                      >
+                        <Image className="mr-2 h-5 w-5" />
+                        Editar Esta Imagem
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          handleToggleFavorite(detailImage.id);
+                          setShowImageDetail(false);
+                        }}
+                        className={`w-full py-3 px-4 rounded-lg flex items-center justify-center ${
+                          favorites.includes(detailImage.id)
+                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                            : (darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-900')
+                        } transition-colors`}
+                      >
+                        <Heart className="mr-2 h-5 w-5" fill={favorites.includes(detailImage.id) ? 'currentColor' : 'none'} />
+                        {favorites.includes(detailImage.id) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+                      </button>
+                      
+                      <button
+                        onClick={() => window.open(detailImage.url, '_blank')}
+                        className={`w-full py-3 px-4 rounded-lg flex items-center justify-center ${
+                          darkMode 
+                            ? 'bg-gray-800 hover:bg-gray-700 text-white' 
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                        } transition-colors`}
+                      >
+                        <Download className="mr-2 h-5 w-5" />
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       
       {/* Footer */}
       <footer className={`p-10 text-center border-t backdrop-blur-sm font-light tracking-wide ${
@@ -524,7 +1194,7 @@ const AIImageGenerator = () => {
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
-          © 2025 ImaginAI - Transforme suas ideias em realidade.
+          2025 HayeAI - Transforme suas ideias em realidade.
         </motion.p>
       </footer>
     </div>

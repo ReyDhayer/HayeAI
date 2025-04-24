@@ -1,5 +1,144 @@
 
 document.addEventListener('DOMContentLoaded', function() {
+  // --- AUTENTICAÇÃO HTML ---
+  // Login
+  const loginForm = document.querySelector('#loginModal .login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      // Validação obrigatória
+      if (!email || !password) {
+        showNotification('Preencha todos os campos!', 'error');
+        return;
+      }
+      if (!validateEmail(email)) {
+        showNotification('Digite um e-mail válido!', 'error');
+        return;
+      }
+      const storedUsers = localStorage.getItem('users');
+      let users = [];
+      try { users = storedUsers ? JSON.parse(storedUsers) : []; } catch { users = []; }
+      const foundUser = users.find(user => user.email === email);
+      if (!foundUser) {
+        showNotification('Usuário não encontrado', 'error');
+        return;
+      }
+      if (foundUser.password !== password) {
+        showNotification('Senha incorreta', 'error');
+        return;
+      }
+      if (foundUser.status && foundUser.status !== 'active') {
+        showNotification('Usuário inativo. Contate o suporte.', 'error');
+        return;
+      }
+      // Login OK
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userRole', foundUser.role || 'usuario');
+      showNotification('Login realizado com sucesso!');
+      setTimeout(() => { window.location.href = '/'; }, 1200);
+    });
+    // Esqueceu senha
+    const forgotLink = loginForm.querySelector('.forgot-password a');
+    if (forgotLink) {
+      forgotLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        if (!email) { showNotification('Digite seu e-mail para recuperar a senha', 'error'); return; }
+        if (!validateEmail(email)) { showNotification('Digite um e-mail válido!', 'error'); return; }
+        const storedUsers = localStorage.getItem('users');
+        let users = [];
+        try { users = storedUsers ? JSON.parse(storedUsers) : []; } catch { users = []; }
+        const foundUser = users.find(user => user.email === email);
+        if (!foundUser) {
+          showNotification('Usuário não encontrado', 'error');
+          return;
+        }
+        // Simula envio de senha para o email (alerta seguro)
+        showNotification('Enviamos instruções para redefinir sua senha para o e-mail informado (simulação).', 'success');
+        setTimeout(() => {
+          alert('Senha cadastrada: ' + foundUser.password + '\n(Somente para demonstração. Em produção, envie um e-mail real!)');
+        }, 1000);
+      });
+    }
+  }
+
+  // Login com Google
+  window.handleGoogleLogin = function(response) {
+    // Decodifica o token JWT do Google
+    const base64Url = response.credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    const userData = JSON.parse(jsonPayload);
+    // Salva usuário Google em localStorage
+    let users = [];
+    try { users = JSON.parse(localStorage.getItem('users')) || []; } catch { users = []; }
+    let foundUser = users.find(u => u.email === userData.email);
+    if (!foundUser) {
+      foundUser = { name: userData.name, email: userData.email, password: '', role: 'usuario', status: 'active', google: true };
+      users.push(foundUser);
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userRole', foundUser.role || 'usuario');
+    showNotification('Login Google realizado com sucesso!');
+    setTimeout(() => { window.location.href = '/'; }, 1200);
+  }
+
+  // Cadastro
+  const signupForm = document.querySelector('#signupModal .login-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      const terms = document.getElementById('terms').checked;
+      // Checar todos campos obrigatórios
+      if (!name || !email || !password || !confirm) {
+        showNotification('Preencha todos os campos', 'error'); return;
+      }
+      if (!validateEmail(email)) {
+        showNotification('Digite um e-mail válido!', 'error'); return;
+      }
+      if (password.length < 5) {
+        showNotification('A senha deve ter pelo menos 5 caracteres', 'error'); return;
+      }
+      if (password !== confirm) {
+        showNotification('As senhas não coincidem', 'error'); return;
+      }
+      if (!terms) {
+        showNotification('Você deve aceitar os Termos de Serviço e Política de Privacidade', 'error'); return;
+      }
+      const storedUsers = localStorage.getItem('users');
+      let users = [];
+      try { users = storedUsers ? JSON.parse(storedUsers) : []; } catch { users = []; }
+      if (users.find(u => u.email === email)) {
+        showNotification('E-mail já cadastrado', 'error'); return;
+      }
+      users.push({ name, email, password, role: 'usuario', status: 'active' });
+      localStorage.setItem('users', JSON.stringify(users));
+      // Login automático após cadastro
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userRole', 'usuario');
+      showNotification('Cadastro realizado! Redirecionando...');
+      setTimeout(() => {
+        document.getElementById('signupModal').classList.remove('active');
+        window.location.href = '/';
+      }, 1200);
+      signupForm.reset();
+    });
+  }
+  // Função para validar email
+  function validateEmail(email) {
+    return /^([\w-.]+)@([\w-]+\.)+[\w-]{2,}$/.test(email);
+  }
+  // --- FIM AUTENTICAÇÃO ---
+
   // Estado da aplicação
   const state = {
     selectedTool: null,

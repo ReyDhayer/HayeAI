@@ -1,7 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import Header from '@/components/Header';
+
 import { useFadeIn } from '@/lib/animations';
 
 const NotFound = () => {
@@ -9,15 +9,17 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
+    if (location.pathname !== "/src/pages/inicio.html") {
+      console.error(
+        "404 Error: User attempted to access non-existent route:",
+        location.pathname
+      );
+    }
   }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+    
       <main className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 ${fadeIn}`}>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -43,14 +45,14 @@ const NotFound = () => {
           transition={{ delay: 0.2 }}
           className="text-xl text-gray-600 mb-8"
         >
-          Oops! The page you're looking for doesn't exist.
+         Opaa! Essa página que você procura não existe.
         </motion.p>
-        <Link 
-          to="/" 
-          className="inline-block px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
-        >
-          Return to Home
-        </Link>
+        <Link
+  to="/inicio"
+  className="inline-block px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
+>
+Voltar para Casa
+</Link>
       </motion.div>
       </main>
     </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Header from "@/components/Header";
 import { toast } from "sonner";
-import { Calendar, Clock, CheckCircle, AlertTriangle, BarChart, Upload, Bell, Users, Filter } from "lucide-react";
+import { Calendar, Clock, CheckCircle, AlertTriangle, BarChart, Upload, Bell, Users, Filter, X, Download, Eye } from "lucide-react";
 
 // Define types for our deadline management
 interface Deadline {
@@ -56,6 +56,8 @@ const MonitorPrazos = () => {
   });
   const [isAddingDeadline, setIsAddingDeadline] = useState(false);
   const [editingDeadlineId, setEditingDeadlineId] = useState<string | null>(null);
+  const [selectedAttachment, setSelectedAttachment] = useState<Deadline['attachments'][0] | null>(null);
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 
   // Categories for academic deadlines
   const categories = [
@@ -304,6 +306,62 @@ const MonitorPrazos = () => {
 
   const stats = getCompletionStats();
 
+  // Função para abrir o anexo
+  const openAttachment = (attachment: Deadline['attachments'][0]) => {
+    setSelectedAttachment(attachment);
+    setShowAttachmentModal(true);
+  };
+
+  // Função para baixar o anexo
+  const downloadAttachment = (attachment: Deadline['attachments'][0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    const link = document.createElement('a');
+    link.href = attachment.url;
+    link.download = attachment.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Baixando: ${attachment.name}`);
+  };
+
+  // Função para renderizar anexos
+  const renderAttachments = (attachments: Deadline['attachments']) => {
+    if (!attachments || attachments.length === 0) return null;
+    
+    return (
+      <div className="mt-3 pt-3 border-t border-gray-100">
+        <p className="text-xs text-gray-500 mb-2">Anexos ({attachments.length}):</p>
+        <div className="flex flex-wrap gap-2">
+          {attachments.map(attachment => (
+            <div 
+              key={attachment.id}
+              className="flex items-center p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={() => openAttachment(attachment)}
+            >
+              <span className="text-sm mr-1">
+                {attachment.type.includes('image') ? '🖼️' : 
+                 attachment.type.includes('pdf') ? '📄' : 
+                 attachment.type.includes('word') ? '📝' : 
+                 attachment.type.includes('excel') ? '📊' : 
+                 '📎'}
+              </span>
+              <span className="text-xs text-gray-700 truncate max-w-[100px]">
+                {attachment.name}
+              </span>
+              <button 
+                onClick={(e) => downloadAttachment(attachment, e)}
+                className="ml-2 text-gray-500 hover:text-indigo-600"
+                title="Baixar arquivo"
+              >
+                <Download className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <Header />
@@ -450,19 +508,42 @@ const MonitorPrazos = () => {
                       
                       return (
                         <tr key={deadline.id} className="hover:bg-gray-50">
-                          // In the list view, modify the title cell to include attachment indicators
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">{deadline.title}</div>
+                          <td className="px-6 py-4">
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-grow">
+                                <div className="text-sm font-medium text-gray-900 mb-1">{deadline.title}</div>
                                 {deadline.discipline && (
-                                  <div className="text-sm text-gray-500">{deadline.discipline}</div>
+                                  <div className="text-xs text-gray-500">{deadline.discipline}</div>
+                                )}
+                                {deadline.description && (
+                                  <div className="text-xs text-gray-500 mt-1 line-clamp-2">{deadline.description}</div>
                                 )}
                               </div>
                               {deadline.attachments && deadline.attachments.length > 0 && (
-                                <span className="ml-2 text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded-full">
-                                  📎 {deadline.attachments.length}
-                                </span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex -space-x-2">
+                                    {deadline.attachments.slice(0, 3).map((attachment, index) => (
+                                      <div
+                                        key={attachment.id}
+                                        className="h-6 w-6 rounded-full bg-gray-100 border border-white flex items-center justify-center"
+                                        title={attachment.name}
+                                      >
+                                        <span className="text-xs">
+                                          {attachment.type.includes('image') ? '🖼️' : 
+                                           attachment.type.includes('pdf') ? '📄' : 
+                                           attachment.type.includes('word') ? '📝' : 
+                                           attachment.type.includes('excel') ? '📊' : 
+                                           '📎'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {deadline.attachments.length > 3 && (
+                                    <span className="text-xs text-gray-500">
+                                      +{deadline.attachments.length - 3}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </td>
@@ -929,40 +1010,86 @@ const MonitorPrazos = () => {
             </button>
           </div>
         )}
-      </main>
-    </div>
-  );
-};
 
-// Add this function to render attachments in the deadline cards
-const renderAttachments = (attachments: Deadline['attachments']) => {
-  if (!attachments || attachments.length === 0) return null;
-  
-  return (
-    <div className="mt-3 pt-3 border-t border-gray-100">
-      <p className="text-xs text-gray-500 mb-2">Anexos ({attachments.length}):</p>
-      <div className="flex flex-wrap gap-2">
-        {attachments.map(attachment => (
-          <a 
-            key={attachment.id}
-            href={attachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <span className="text-sm mr-1">
-              {attachment.type.includes('image') ? '🖼️' : 
-               attachment.type.includes('pdf') ? '📄' : 
-               attachment.type.includes('word') ? '📝' : 
-               attachment.type.includes('excel') ? '📊' : 
-               '📎'}
-            </span>
-            <span className="text-xs text-gray-700 truncate max-w-[100px]">
-              {attachment.name}
-            </span>
-          </a>
-        ))}
-      </div>
+        {/* Modal para visualizar anexos */}
+        {showAttachmentModal && selectedAttachment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold flex items-center">
+                  <span className="mr-2">
+                    {selectedAttachment.type.includes('image') ? '🖼️' : 
+                     selectedAttachment.type.includes('pdf') ? '📄' : 
+                     selectedAttachment.type.includes('word') ? '📝' : 
+                     selectedAttachment.type.includes('excel') ? '📊' : 
+                     '📎'}
+                  </span>
+                  {selectedAttachment.name}
+                </h3>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => downloadAttachment(selectedAttachment, {} as React.MouseEvent)}
+                    className="p-2 text-gray-600 hover:text-indigo-600 rounded-full hover:bg-gray-100"
+                    title="Baixar arquivo"
+                  >
+                    <Download className="h-5 w-5" />
+                  </button>
+                  <button 
+                    onClick={() => setShowAttachmentModal(false)}
+                    className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="border rounded-lg p-4 bg-gray-50">
+                {selectedAttachment.type.includes('image') ? (
+                  <img 
+                    src={selectedAttachment.url} 
+                    alt={selectedAttachment.name} 
+                    className="max-h-[60vh] mx-auto object-contain"
+                  />
+                ) : selectedAttachment.type.includes('pdf') ? (
+                  <iframe 
+                    src={selectedAttachment.url} 
+                    className="w-full h-[60vh] border-0"
+                    title={selectedAttachment.name}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[60vh] text-center p-8">
+                    <div className="text-6xl mb-4">
+                      {selectedAttachment.type.includes('word') ? '📝' : 
+                       selectedAttachment.type.includes('excel') ? '📊' : 
+                       '📎'}
+                    </div>
+                    <p className="text-lg text-gray-700 mb-2">
+                      Este tipo de arquivo não pode ser visualizado diretamente
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {selectedAttachment.name} ({(selectedAttachment.size / 1024).toFixed(1)} KB)
+                    </p>
+                    <button 
+                      onClick={() => downloadAttachment(selectedAttachment, {} as React.MouseEvent)}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Baixar Arquivo
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-4 text-sm text-gray-500">
+                <p>Nome: {selectedAttachment.name}</p>
+                <p>Tipo: {selectedAttachment.type}</p>
+                <p>Tamanho: {(selectedAttachment.size / 1024).toFixed(1)} KB</p>
+                <p>Data de upload: {new Date(selectedAttachment.uploadDate).toLocaleString('pt-BR')}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
